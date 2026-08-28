@@ -1,0 +1,37 @@
+{
+  "@@locale": "en",
+  "error": "Error",
+  "@error": {
+    "description": "Title of the error state shown when movies fail to load."
+  },
+  "loadingMovies": "Loading movies…",
+  "@loadingMovies": {
+    "description": "Progress indicator label while the movies list is loading."
+  },
+  "moviePoster": "Movie's poster",
+  "@moviePoster": {
+    "description": "Accessibility label for the movie poster image on the details screen."
+  },
+  "popularMovies": "Popular Movies",
+  "@popularMovies": {
+    "description": "Navigation bar title on the popular movies screen."
+  },
+  "rating": "Rating",
+  "@rating": {
+    "description": "Accessibility label for the rating value on the details screen."
+  },
+  "releaseDate": "Release date: {date}",
+  "@releaseDate": {
+    "description": "Release date line on the details screen.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2025-06-15"
+      }
+    }
+  },
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button that re-attempts loading after an error."
+  }
+}

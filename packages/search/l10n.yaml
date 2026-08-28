@@ -1,0 +1,7 @@
+arb-dir: lib/src/l10n
+template-arb-file: search_en.arb
+output-dir: lib/src/l10n/generated
+output-localization-file: search_localizations.dart
+output-class: SearchLocalizations
+nullable-getter: false
+synthetic-package: false

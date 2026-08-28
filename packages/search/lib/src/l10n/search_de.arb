@@ -1,0 +1,8 @@
+{
+  "@@locale": "de",
+  "clearSearch": "Suche löschen",
+  "noResultsFor": "Keine Ergebnisse für „{query}“",
+  "search": "Suchen",
+  "searchMovies": "Filme suchen",
+  "tryDifferentTerm": "Versuche es mit einem anderen Suchbegriff"
+}

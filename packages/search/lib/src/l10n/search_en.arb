@@ -1,0 +1,29 @@
+{
+  "@@locale": "en",
+  "clearSearch": "Clear search",
+  "@clearSearch": {
+    "description": "Accessibility label for the button that clears the search field."
+  },
+  "noResultsFor": "No results for \"{query}\"",
+  "@noResultsFor": {
+    "description": "Empty-state title when a search returns no results.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "xyzzy"
+      }
+    }
+  },
+  "search": "Search",
+  "@search": {
+    "description": "Placeholder text inside the search field."
+  },
+  "searchMovies": "Search movies",
+  "@searchMovies": {
+    "description": "Accessibility label for the search field."
+  },
+  "tryDifferentTerm": "Try a different search term",
+  "@tryDifferentTerm": {
+    "description": "Empty-state subtitle when a search returns no results."
+  }
+}

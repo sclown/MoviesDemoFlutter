@@ -1,0 +1,10 @@
+{
+  "@@locale": "de",
+  "error": "Fehler",
+  "loadingMovies": "Filme werden geladen…",
+  "moviePoster": "Filmplakat",
+  "popularMovies": "Beliebte Filme",
+  "rating": "Bewertung",
+  "releaseDate": "Erscheinungsdatum: {date}",
+  "retry": "Erneut versuchen"
+}
