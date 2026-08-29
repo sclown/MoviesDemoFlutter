@@ -2,6 +2,7 @@
 //  modules.dart
 //
 
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_api/movies_api.dart';
@@ -18,7 +19,7 @@ void registerModules({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
 
   registerNetworkService(container: getIt);
-  registerMoviesApi(container: getIt);
+  registerMoviesApi(container: getIt, language: currentLanguageTag);
 
   if (!getIt.isRegistered<MovieCache>()) {
     getIt.registerLazySingleton<MovieCache>(MovieCache.new);
@@ -29,4 +30,14 @@ void registerModules({GetIt? container}) {
 
   registerMovies(container: getIt);
   registerSearch(container: getIt);
+}
+
+/// The language TMDB should answer in: the same locale `MaterialApp` resolves
+/// the UI to, so titles and overviews match the chrome around them.
+String currentLanguageTag() {
+  final resolved = basicLocaleListResolution(
+    WidgetsBinding.instance.platformDispatcher.locales,
+    MoviesLocalizations.supportedLocales,
+  );
+  return resolved.toLanguageTag();
 }

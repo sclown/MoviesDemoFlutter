@@ -2,7 +2,7 @@
 
 **Reviewed:** 2026-08-28 · **Updated:** 2026-08-29
 **Scope:** whole codebase (app + all seven workspace packages)
-**Verification:** `flutter analyze` → *No issues found*. `./scripts/test_all.sh` → all 86 automated
+**Verification:** `flutter analyze` → *No issues found*. `./scripts/test_all.sh` → all 88 automated
 tests pass across 6 suites. `flutter test integration_test` → 5/5 on an iPhone 16 Pro simulator
 against the live TMDB API. `flutter build apk --debug|--release` and `build appbundle` all succeed.
 
@@ -28,29 +28,7 @@ Other things worth keeping:
 
 ## Open — bugs
 
-### 1. Search failures are reported to the user as "no results"
-
-`packages/search/lib/src/search_cubit.dart:93` catches every error and clears `_searchResults`; line
-105 then computes `showEmptyLabel: _searchResults.isEmpty && query.isNotEmpty` → true. A dropped
-connection tells the user "No results for 'Batman'". `SearchState` has no error field at all.
-
-The most user-visible defect. A sealed `Result` type in `movies_core` would make "failed" and
-"returned nothing" distinct cases the compiler forces you to handle.
-
-### 2. `NetworkError.timeout()` can never fire in production
-
-`packages/network_service/lib/src/network_client.dart:34` calls `_client.get(url)` with no timeout,
-and nothing else throws `TimeoutException`. The mapping in `network_error.dart` is only reachable
-from tests. A hung request hangs until the OS gives up.
-
-Fix: `.timeout(const Duration(seconds: 30))`.
-
-### 3. TMDB is always asked for English
-
-`packages/movies_api/lib/src/movie_service.dart:78` hardcodes `'language': 'en-US'` while the app
-ships German UI strings. In German the chrome is translated and every title and overview is not.
-
-### 4. `isLoadingMore` is tracked but never rendered
+### 1. `isLoadingMore` is tracked but never rendered
 
 Emitted by `MoviesCubit`, asserted in the cubit tests, read by no widget. Either show a footer
 spinner in `MoviesView._movieGrid` or drop the field.
@@ -93,7 +71,7 @@ the catalogue or the session gets long.
   iOS/Android is the target, but it's an unstated constraint.
 - No pull-to-refresh, and load-more errors are swallowed silently with no way to retry that page.
 - `_Cancellation` is duplicated verbatim in `movies_cubit.dart` and `search_cubit.dart` — it belongs
-  in `movies_core`.
+  in `movies_core`, next to `describeError` which was de-duplicated the same way.
 - The `addPostFrameCallback` in `movies_view.dart` registers a new callback on every rebuild of the
   last cell. Guarded, so harmless, but a scroll-position listener is the conventional trigger.
 - `intl: any` in both feature pubspecs.
@@ -124,6 +102,16 @@ the catalogue or the session gets long.
   `packages/movies_api/test/fixtures.dart`. **Trade-off:** those suites no longer exercise URL
   building, HTTP status handling or JSON parsing — that coverage now lives solely in `movies_api`'s
   own tests, and nothing exercises the seam between the two layers end to end.
+- **Search failures are reported as failures.** `SearchState` gained an `errorMessage`, `SearchCubit`
+  sets it from `describeError`, and `SearchOverlay` renders a new `SearchErrorView` instead of the
+  empty-results label. `showEmptyLabel` is now only set when the search actually succeeded, so a
+  dropped connection no longer says "No results for 'Batman'".
+- **HTTP requests time out.** `HttpNetworkClient` takes a `timeout` (30s default) and applies it, so
+  `NetworkError.timeout()` is reachable from production rather than only from tests.
+- **TMDB is asked for the language the UI is in.** `MovieService` takes a `String Function() language`
+  read per request; the app supplies `currentLanguageTag()`, which resolves the platform locales
+  against `MoviesLocalizations.supportedLocales` the same way `MaterialApp` does. A locale change
+  mid-session reaches the next request.
 - **`NoopNavigator` and `registerMoviesCore()` are gone.** They were unreachable — nothing outside
   their own tests called `registerMoviesCore()` — and the only path that reached the no-op was the
   one where it silently disabled every poster tap, since both registrations guard on
@@ -168,6 +156,6 @@ it.
 Well above the quality bar for a demo — the boundaries hold, the tests are real, and the intent is
 documented. Suggested order of work:
 
-1. Search-error-as-empty-results (bug #1)
-2. The `en-US` hardcode (bug #4)
-3. The triplicated theme — it quietly undermines what the golden tests are supposed to prove
+1. The triplicated theme — it quietly undermines what the golden tests are supposed to prove
+2. `movies_core` depending on `movies_api`
+3. The `isLoadingMore` field that nothing renders

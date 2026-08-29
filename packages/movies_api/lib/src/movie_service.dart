@@ -18,11 +18,18 @@ abstract interface class MovieServicing {
 
 /// Registers the service as a singleton. Depends on [NetworkClient] already
 /// being registered, so call [registerNetworkService] first.
-void registerMoviesApi({GetIt? container}) {
+///
+/// [language] is read on every request, so it follows a locale that changes
+/// while the app is running. The app supplies it; this package has no way to
+/// know which locales the UI was built for.
+void registerMoviesApi({GetIt? container, String Function()? language}) {
   final getIt = container ?? GetIt.instance;
   if (!getIt.isRegistered<MovieServicing>()) {
     getIt.registerLazySingleton<MovieServicing>(
-      () => MovieService(networkClient: getIt<NetworkClient>()),
+      () => MovieService(
+        networkClient: getIt<NetworkClient>(),
+        language: language,
+      ),
     );
   }
 }
@@ -32,15 +39,22 @@ final class MovieService implements MovieServicing {
     required NetworkClient networkClient,
     MovieParser parser = const MovieParser(),
     String? apiKey,
+    String Function()? language,
   }) : _networkClient = networkClient,
        _parser = parser,
-       _apiKey = apiKey ?? resolveApiKey();
+       _apiKey = apiKey ?? resolveApiKey(),
+       _language = language ?? _defaultLanguage;
 
   static const _baseUrl = 'https://api.themoviedb.org/3';
 
   final NetworkClient _networkClient;
   final MovieParser _parser;
   final String _apiKey;
+
+  /// Which language TMDB should return titles and overviews in.
+  final String Function() _language;
+
+  static String _defaultLanguage() => 'en-US';
 
   /// Prefers a key baked in with `--dart-define=TMDB_API_KEY=…`, and falls back
   /// to the process environment so `dart test` and `flutter run` pick up an
@@ -75,6 +89,10 @@ final class MovieService implements MovieServicing {
     required String path,
     Map<String, String> queryItems = const {},
   }) => Uri.parse('$_baseUrl$path').replace(
-    queryParameters: {'api_key': _apiKey, 'language': 'en-US', ...queryItems},
+    queryParameters: {
+      'api_key': _apiKey,
+      'language': _language(),
+      ...queryItems,
+    },
   );
 }

@@ -80,6 +80,7 @@ class SearchCubit extends Cubit<SearchState> {
     required String query,
     required _Cancellation token,
   }) async {
+    String? errorMessage;
     try {
       // Keystrokes land faster than requests should: wait out the typing
       // before spending a request, and drop the result if a newer query won.
@@ -91,9 +92,10 @@ class SearchCubit extends Cubit<SearchState> {
       // The details screen reads from the cache, so results have to land there
       // before a tap can open one.
       _cache.putAll([for (final movie in _searchResults) movie.details()]);
-    } catch (_) {
+    } catch (error) {
       if (token.isCancelled) return;
       _searchResults = [];
+      errorMessage = describeError(error);
     }
 
     emit(
@@ -103,7 +105,10 @@ class SearchCubit extends Cubit<SearchState> {
         ],
         isSearching: false,
         searchQuery: query,
-        showEmptyLabel: _searchResults.isEmpty && query.isNotEmpty,
+        // "found nothing" only when the search actually succeeded.
+        showEmptyLabel:
+            errorMessage == null && _searchResults.isEmpty && query.isNotEmpty,
+        errorMessage: errorMessage,
       ),
     );
   }

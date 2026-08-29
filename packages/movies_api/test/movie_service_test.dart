@@ -59,6 +59,24 @@ void main() {
 
     expect(client.lastUrl!.queryParameters['page'], '1');
   });
+
+  test('the language comes from the caller and is read per request', () async {
+    var tag = 'de-DE';
+    final client = _RecordingClient(Json.singleValid);
+    final service = MovieService(
+      networkClient: client,
+      apiKey: 'test-key',
+      language: () => tag,
+    );
+
+    await service.fetchPopularMovies(page: 1);
+    expect(client.lastUrl!.queryParameters['language'], 'de-DE');
+
+    // A locale change mid-session reaches the next request.
+    tag = 'en-US';
+    await service.fetchPopularMovies(page: 1);
+    expect(client.lastUrl!.queryParameters['language'], 'en-US');
+  });
 }
 
 /// Captures the URL the service builds so the query can be asserted.

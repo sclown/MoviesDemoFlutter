@@ -24,4 +24,7 @@ class SearchLocalizationsDe extends SearchLocalizations {
 
   @override
   String get tryDifferentTerm => 'Versuche es mit einem anderen Suchbegriff';
+
+  @override
+  String get searchFailed => 'Suche fehlgeschlagen';
 }

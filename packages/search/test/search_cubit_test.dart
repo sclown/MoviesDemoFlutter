@@ -48,7 +48,8 @@ TypeMatcher<SearchState> settled({
     .having((s) => s.isSearching, 'isSearching', false)
     .having((s) => s.searchResults, 'searchResults', results ?? anything)
     .having((s) => s.showEmptyLabel, 'showEmptyLabel', showEmptyLabel ?? anything)
-    .having((s) => s.searchQuery, 'searchQuery', query ?? anything);
+    .having((s) => s.searchQuery, 'searchQuery', query ?? anything)
+    .having((s) => s.errorMessage, 'errorMessage', isNull);
 void main() {
   blocTest<SearchCubit, SearchState>(
     'search debounces and returns results',
@@ -102,7 +103,7 @@ void main() {
     ],
   );
   blocTest<SearchCubit, SearchState>(
-    'a failed search shows the empty label rather than an error',
+    'a failed search reports the error, not an empty result set',
     build: () =>
         makeCubit(api: apiFailing(const NetworkError.noConnection())),
     act: (cubit) async {
@@ -111,8 +112,44 @@ void main() {
     },
     expect: () => [
       searching('test'),
-      settled(results: isEmpty, showEmptyLabel: true),
+      isA<SearchState>()
+          .having((s) => s.isSearching, 'isSearching', false)
+          .having((s) => s.searchResults, 'searchResults', isEmpty)
+          .having((s) => s.errorMessage, 'errorMessage', isNotNull)
+          // The user must not be told the search simply found nothing.
+          .having((s) => s.showEmptyLabel, 'showEmptyLabel', false),
     ],
+  );
+
+  blocTest<SearchCubit, SearchState>(
+    'a later successful query clears the error',
+    build: () {
+      final api = MoviesApiMock();
+      var first = true;
+      when(
+        () => api.searchMovies(
+          query: any(named: 'query'),
+          page: any(named: 'page'),
+        ),
+      ).thenAnswer((_) async {
+        if (first) {
+          first = false;
+          throw const NetworkError.noConnection();
+        }
+        return movieResponse(ids: const [10]);
+      });
+      return makeCubit(api: api);
+    },
+    act: (cubit) async {
+      cubit.updateSearchQuery('test');
+      await settle();
+      cubit.updateSearchQuery('other');
+      await settle();
+    },
+    verify: (cubit) {
+      expect(cubit.state.errorMessage, isNull);
+      expect(cubit.state.searchResults, hasLength(1));
+    },
   );
   blocTest<SearchCubit, SearchState>(
     'repeating the current query is ignored',

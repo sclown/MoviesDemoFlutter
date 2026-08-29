@@ -24,14 +24,21 @@ void registerNetworkService({GetIt? container}) {
 }
 
 final class HttpNetworkClient implements NetworkClient {
-  HttpNetworkClient({http.Client? client}) : _client = client ?? http.Client();
+  HttpNetworkClient({
+    http.Client? client,
+    this.timeout = const Duration(seconds: 30),
+  }) : _client = client ?? http.Client();
 
   final http.Client _client;
+
+  /// Without this a stalled request hangs until the OS gives up, and
+  /// [NetworkError.timeout] is unreachable.
+  final Duration timeout;
 
   @override
   Future<Uint8List> data(Uri url) async {
     try {
-      final response = await _client.get(url);
+      final response = await _client.get(url).timeout(timeout);
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw NetworkError.httpError(response.statusCode);
       }

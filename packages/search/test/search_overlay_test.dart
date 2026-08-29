@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:search/src/empty_search_results_view.dart';
+import 'package:search/src/search_error_view.dart';
 import 'package:search/src/search_result_row.dart';
 import 'package:search/src/search_state.dart';
 
@@ -41,6 +42,15 @@ void main() {
     expect(find.byType(SearchResultRow), findsNWidgets(3));
     expect(find.text('Test movie 1'), findsOne);
     expect(find.text('7.5'), findsWidgets);
+  });
+
+  testWidgets('shows the error state when the search failed', (tester) async {
+    await tester.pumpWidget(harnessSearchOverlay(searchCubitMock(failedState())));
+    await tester.pump();
+
+    expect(find.byType(SearchErrorView), findsOne);
+    expect(find.text('Search failed'), findsOne);
+    expect(find.byType(EmptySearchResultsView), findsNothing);
   });
 
   testWidgets('shows the empty state', (tester) async {

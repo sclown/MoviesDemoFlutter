@@ -127,6 +127,12 @@ abstract class SearchLocalizations {
   /// In en, this message translates to:
   /// **'Try a different search term'**
   String get tryDifferentTerm;
+
+  /// Title shown when a search request fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Search failed'**
+  String get searchFailed;
 }
 
 class _SearchLocalizationsDelegate

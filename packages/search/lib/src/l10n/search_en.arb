@@ -25,5 +25,9 @@
   "tryDifferentTerm": "Try a different search term",
   "@tryDifferentTerm": {
     "description": "Empty-state subtitle when a search returns no results."
+  },
+  "searchFailed": "Search failed",
+  "@searchFailed": {
+    "description": "Title shown when a search request fails."
   }
 }

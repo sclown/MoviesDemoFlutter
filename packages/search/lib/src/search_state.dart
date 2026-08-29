@@ -12,6 +12,7 @@ final class SearchState {
     required this.isSearching,
     required this.searchQuery,
     required this.showEmptyLabel,
+    this.errorMessage,
   });
 
   factory SearchState.empty() => const SearchState(
@@ -26,16 +27,24 @@ final class SearchState {
   final String searchQuery;
   final bool showEmptyLabel;
 
+  /// Set when the search itself failed. Distinct from [showEmptyLabel], which
+  /// means the search succeeded and found nothing.
+  final String? errorMessage;
+
+  /// [errorMessage] is cleared unless a new one is passed — a fresh query
+  /// always supersedes the previous failure.
   SearchState copyWith({
     List<SearchCard>? searchResults,
     bool? isSearching,
     String? searchQuery,
     bool? showEmptyLabel,
+    String? errorMessage,
   }) => SearchState(
     searchResults: searchResults ?? this.searchResults,
     isSearching: isSearching ?? this.isSearching,
     searchQuery: searchQuery ?? this.searchQuery,
     showEmptyLabel: showEmptyLabel ?? this.showEmptyLabel,
+    errorMessage: errorMessage,
   );
 
   @override
@@ -44,9 +53,10 @@ final class SearchState {
       listEquals(other.searchResults, searchResults) &&
       other.isSearching == isSearching &&
       other.searchQuery == searchQuery &&
-      other.showEmptyLabel == showEmptyLabel;
+      other.showEmptyLabel == showEmptyLabel &&
+      other.errorMessage == errorMessage;
 
   @override
-  int get hashCode => Object.hash(
-    Object.hashAll(searchResults), isSearching, searchQuery, showEmptyLabel);
+  int get hashCode => Object.hash(Object.hashAll(searchResults), isSearching,
+      searchQuery, showEmptyLabel, errorMessage);
 }

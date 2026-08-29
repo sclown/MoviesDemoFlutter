@@ -80,7 +80,7 @@ class MoviesCubit extends Cubit<MoviesListState> {
     } catch (error) {
       if (token.isCancelled) return;
       _hasLoaded = false;
-      errorMessage = _describe(error);
+      errorMessage = describeError(error);
     }
 
     emit(
@@ -121,11 +121,6 @@ class MoviesCubit extends Cubit<MoviesListState> {
       ),
     );
   }
-
-  String _describe(Object error) => switch (error) {
-    Exception() => error.toString().replaceFirst('Exception: ', ''),
-    _ => error.toString(),
-  };
 
   static void _noNavigation(int movieId) {}
 }

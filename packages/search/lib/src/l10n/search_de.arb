@@ -4,5 +4,6 @@
   "noResultsFor": "Keine Ergebnisse für „{query}“",
   "search": "Suchen",
   "searchMovies": "Filme suchen",
-  "tryDifferentTerm": "Versuche es mit einem anderen Suchbegriff"
+  "tryDifferentTerm": "Versuche es mit einem anderen Suchbegriff",
+  "searchFailed": "Suche fehlgeschlagen"
 }

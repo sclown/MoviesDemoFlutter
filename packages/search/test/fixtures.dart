@@ -33,3 +33,11 @@ SearchState resultsState(int count) => SearchState(
   searchQuery: 'Movie',
   showEmptyLabel: false,
 );
+
+SearchState failedState() => const SearchState(
+  searchResults: [],
+  isSearching: false,
+  searchQuery: 'Batman',
+  showEmptyLabel: false,
+  errorMessage: 'No internet connection. Please check your network settings.',
+);

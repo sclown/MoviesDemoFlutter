@@ -39,4 +39,21 @@ void main() {
       throwsA(const NetworkError.noConnection()),
     );
   });
+
+  test('a stalled request becomes a timeout error', () async {
+    final client = HttpNetworkClient(
+      client: MockClient(
+        (_) => Future.delayed(
+          const Duration(seconds: 5),
+          () => http.Response('never arrives', 200),
+        ),
+      ),
+      timeout: const Duration(milliseconds: 20),
+    );
+
+    await expectLater(
+      client.data(Uri.parse('https://example.com')),
+      throwsA(const NetworkError.timeout()),
+    );
+  });
 }

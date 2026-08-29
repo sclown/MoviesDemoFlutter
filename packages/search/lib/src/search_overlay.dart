@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 
 import 'empty_search_results_view.dart';
 import 'search_bar.dart';
+import 'search_error_view.dart';
 import 'search_result_row.dart';
 import 'search_state.dart';
 import 'search_cubit.dart';
@@ -111,6 +112,10 @@ class _SearchOverlayState extends State<SearchOverlay> {
   }
 
   Widget _searchResults(SearchState state) {
+    final errorMessage = state.errorMessage;
+    if (errorMessage != null) {
+      return Center(child: SearchErrorView(message: errorMessage));
+    }
     if (state.showEmptyLabel) {
       return Center(child: EmptySearchResultsView(query: state.searchQuery));
     }
