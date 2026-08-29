@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:search/src/empty_search_results_view.dart';
 import 'package:search/src/search_result_row.dart';
 import 'package:search/src/search_state.dart';
 
+import 'fixtures.dart';
 import 'test_harness.dart';
 
 void main() {
@@ -12,7 +14,7 @@ void main() {
 
   testWidgets('starts as just a search field', (tester) async {
     await tester.pumpWidget(
-      harnessSearchOverlay(SearchViewModelMock(SearchState.empty())),
+      harnessSearchOverlay(searchCubitMock(SearchState.empty())),
     );
 
     expect(find.byType(TextField), findsOne);
@@ -21,18 +23,18 @@ void main() {
   });
 
   testWidgets('typing forwards the query to the view model', (tester) async {
-    final viewModel = SearchViewModelMock(SearchState.empty());
-    await tester.pumpWidget(harnessSearchOverlay(viewModel));
+    final cubit = searchCubitMock(SearchState.empty());
+    await tester.pumpWidget(harnessSearchOverlay(cubit));
 
     await tester.enterText(find.byType(TextField), 'Batman');
     await tester.pump();
 
-    expect(viewModel.queries.last, 'Batman');
+    verify(() => cubit.updateSearchQuery('Batman')).called(1);
   });
 
   testWidgets('shows the results', (tester) async {
     await tester.pumpWidget(
-      harnessSearchOverlay(SearchViewModelMock(SearchState.mockResults(3))),
+      harnessSearchOverlay(searchCubitMock(resultsState(3))),
     );
     await tester.pump();
 
@@ -43,7 +45,7 @@ void main() {
 
   testWidgets('shows the empty state', (tester) async {
     await tester.pumpWidget(
-      harnessSearchOverlay(SearchViewModelMock(SearchState.noResults())),
+      harnessSearchOverlay(searchCubitMock(noResultsState())),
     );
     await tester.pump();
 
@@ -54,7 +56,7 @@ void main() {
 
   testWidgets('shows a spinner while searching', (tester) async {
     await tester.pumpWidget(
-      harnessSearchOverlay(SearchViewModelMock(SearchState.searching())),
+      harnessSearchOverlay(searchCubitMock(searchingState())),
     );
     await tester.pump();
 
@@ -62,18 +64,18 @@ void main() {
   });
 
   testWidgets('tapping a result opens its details', (tester) async {
-    final viewModel = SearchViewModelMock(SearchState.mockResults(3));
-    await tester.pumpWidget(harnessSearchOverlay(viewModel));
+    final cubit = searchCubitMock(resultsState(3));
+    await tester.pumpWidget(harnessSearchOverlay(cubit));
     await tester.pump();
 
     await tester.tap(find.text('Test movie 2'));
 
-    expect(viewModel.shownDetails, [2]);
+    verify(() => cubit.showDetails(movieId: 2)).called(1);
   });
 
   testWidgets('the clear button empties the field', (tester) async {
-    final viewModel = SearchViewModelMock(SearchState.mockResults(3));
-    await tester.pumpWidget(harnessSearchOverlay(viewModel));
+    final cubit = searchCubitMock(resultsState(3));
+    await tester.pumpWidget(harnessSearchOverlay(cubit));
     await tester.pump();
 
     await tester.enterText(find.byType(TextField), 'Batman');
@@ -82,7 +84,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.cancel));
     await tester.pump();
 
-    expect(viewModel.queries.last, '');
+    verify(() => cubit.updateSearchQuery('')).called(greaterThan(0));
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '');
   });
 
@@ -90,7 +92,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(
-      harnessSearchOverlay(SearchViewModelMock(SearchState.empty())),
+      harnessSearchOverlay(searchCubitMock(SearchState.empty())),
     );
 
     expect(find.byIcon(Icons.cancel), findsNothing);
@@ -106,7 +108,7 @@ void main() {
   ) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(
-      harnessSearchOverlay(SearchViewModelMock(SearchState.mockResults(1))),
+      harnessSearchOverlay(searchCubitMock(resultsState(1))),
     );
     await tester.pump();
 
@@ -119,7 +121,7 @@ void main() {
   testWidgets('translates into German', (tester) async {
     await tester.pumpWidget(
       harnessSearchOverlay(
-        SearchViewModelMock(SearchState.noResults()),
+        searchCubitMock(noResultsState()),
         locale: const Locale('de'),
       ),
     );

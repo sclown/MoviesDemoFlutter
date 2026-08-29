@@ -1,60 +1,45 @@
 //
-//  search_view_model.dart
+//  search_cubit.dart
 //
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movies_api/movies_api.dart';
 import 'package:movies_core/movies_core.dart';
 
 import 'search_card.dart';
 import 'search_state.dart';
 
-abstract interface class SearchViewModeling {
-  ValueNotifier<SearchState> get state;
-
-  void updateSearchQuery(String query);
-
-  void showDetails({required int movieId});
-}
-
-final class SearchViewModel implements SearchViewModeling {
-  SearchViewModel({
+class SearchCubit extends Cubit<SearchState> {
+  SearchCubit({
     SearchState? state,
     required MovieServicing service,
     void Function(MovieDetails movie) navigation = _noNavigation,
-    StateLogger<SearchState> logger = _noLogging,
     Duration debounce = const Duration(milliseconds: 500),
-  }) : state = ValueNotifier(state ?? SearchState.empty()),
-       _service = service,
+  }) : _service = service,
        _navigation = navigation,
-       _logger = logger,
-       _debounce = debounce;
-
-  @override
-  final ValueNotifier<SearchState> state;
+       _debounce = debounce,
+       super(state ?? SearchState.empty());
 
   final MovieServicing _service;
   final void Function(MovieDetails movie) _navigation;
-  final StateLogger<SearchState> _logger;
   final Duration _debounce;
 
   List<Movie> _searchResults = [];
   _Cancellation? _searchToken;
 
-  void dispose() {
+  @override
+  Future<void> close() {
     _searchToken?.cancel();
-    state.dispose();
+    return super.close();
   }
 
-  @override
   void updateSearchQuery(String query) {
-    if (query == state.value.searchQuery) return;
+    if (query == state.searchQuery) return;
     _debounceSearch(query);
   }
 
-  @override
   void showDetails({required int movieId}) {
     for (final movie in _searchResults) {
       if (movie.id == movieId) {
@@ -69,16 +54,24 @@ final class SearchViewModel implements SearchViewModeling {
 
     if (query.isEmpty) {
       _searchResults = [];
-      _updateState(
-        searchResults: [],
-        isSearching: false,
-        searchQuery: '',
-        showEmptyLabel: false,
+      emit(
+        state.copyWith(
+          searchResults: [],
+          isSearching: false,
+          searchQuery: '',
+          showEmptyLabel: false,
+        ),
       );
       return;
     }
 
-    _updateState(isSearching: true, searchQuery: query, showEmptyLabel: false);
+    emit(
+      state.copyWith(
+        isSearching: true,
+        searchQuery: query,
+        showEmptyLabel: false,
+      ),
+    );
 
     final token = _Cancellation();
     _searchToken = token;
@@ -102,38 +95,23 @@ final class SearchViewModel implements SearchViewModeling {
       _searchResults = [];
     }
 
-    _updateState(
-      searchResults: [for (final movie in _searchResults) SearchCard.from(movie)],
-      isSearching: false,
-      searchQuery: query,
-      showEmptyLabel: _searchResults.isEmpty && query.isNotEmpty,
+    emit(
+      state.copyWith(
+        searchResults: [
+          for (final movie in _searchResults) SearchCard.from(movie),
+        ],
+        isSearching: false,
+        searchQuery: query,
+        showEmptyLabel: _searchResults.isEmpty && query.isNotEmpty,
+      ),
     );
-  }
-
-  void _updateState({
-    List<SearchCard>? searchResults,
-    bool? isSearching,
-    String? searchQuery,
-    bool? showEmptyLabel,
-  }) {
-    final current = state.value;
-    final next = SearchState(
-      searchResults: searchResults ?? current.searchResults,
-      isSearching: isSearching ?? current.isSearching,
-      searchQuery: searchQuery ?? current.searchQuery,
-      showEmptyLabel: showEmptyLabel ?? current.showEmptyLabel,
-    );
-    state.value = next;
-    _logger(next);
   }
 
   static void _noNavigation(MovieDetails movie) {}
-
-  static void _noLogging(SearchState state) {}
 }
 
 /// Marks a superseded search so it drops its result — see the note in
-/// `MoviesViewModel`.
+/// `MoviesCubit`.
 final class _Cancellation {
   bool isCancelled = false;
 

@@ -1,0 +1,16 @@
+name: movies_core_mocks
+description: Placeholder domain values for the tests.
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.8.1
+
+resolution: workspace
+
+dependencies:
+  movies_core:
+    path: ../movies_core
+
+dev_dependencies:
+  lints: ^5.0.0

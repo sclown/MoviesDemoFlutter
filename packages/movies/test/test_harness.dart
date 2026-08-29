@@ -2,43 +2,40 @@
 //  test_harness.dart — the harness the widget and golden tests share
 //
 
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
+import 'package:movies/src/list/movies_cubit.dart';
 import 'package:movies/src/list/movies_list_state.dart';
-import 'package:movies/src/list/movies_view_model.dart';
 
-/// Publishes whatever state it is handed and records the calls the view makes.
-final class MoviesViewModelMock implements MoviesViewModeling {
-  MoviesViewModelMock(MoviesListState state) : state = ValueNotifier(state);
+/// Emits the states a test hands it and records the calls the view makes.
+class MoviesCubitMock extends MockCubit<MoviesListState>
+    implements MoviesCubit {}
 
-  @override
-  final ValueNotifier<MoviesListState> state;
-
-  final shownDetails = <int>[];
-  var loadCount = 0;
-  final loadMoreRequests = <int>[];
-
-  @override
-  void load() => loadCount++;
-
-  @override
-  void loadMoreIfNeeded({required int currentMovieId}) =>
-      loadMoreRequests.add(currentMovieId);
-
-  @override
-  void showDetails({required int movieId}) => shownDetails.add(movieId);
+/// A cubit stuck on [state], or replaying [stream] when one is given.
+MoviesCubitMock moviesCubitMock(
+  MoviesListState state, {
+  Stream<MoviesListState>? stream,
+}) {
+  final cubit = MoviesCubitMock();
+  whenListen(
+    cubit,
+    stream ?? const Stream<MoviesListState>.empty(),
+    initialState: state,
+  );
+  return cubit;
 }
 
-/// Registers [viewModel] and returns a `MoviesView` wrapped in the app's theme
+/// Registers [cubit] and returns a `MoviesView` wrapped in the app's theme
 /// and localizations.
 Widget harnessMoviesView(
-  MoviesViewModelMock viewModel, {
+  MoviesCubitMock cubit, {
   Widget? overlay,
   Locale? locale,
 }) {
-  GetIt.instance.registerSingleton<MoviesViewModeling>(viewModel);
+  GetIt.instance.registerSingleton<MoviesCubit>(cubit);
   return harnessApp(MoviesView(overlay: overlay), locale: locale);
 }
 

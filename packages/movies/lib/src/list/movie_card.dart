@@ -18,12 +18,17 @@ final class MovieCard {
       title = movie.title,
       poster = movie.smallPoster();
 
-  factory MovieCard.mock() => MovieCard.mockWith(id: 1);
-
-  factory MovieCard.mockWith({required int id}) =>
-      MovieCard(id: id, title: 'Movie title $id', poster: null);
-
   final int id;
   final String title;
   final Uri? poster;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MovieCard &&
+      other.id == id &&
+      other.title == title &&
+      other.poster == poster;
+
+  @override
+  int get hashCode => Object.hash(id, title, poster);
 }

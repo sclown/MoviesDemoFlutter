@@ -14,17 +14,6 @@ final class MovieDetails {
     required this.overview,
   });
 
-  factory MovieDetails.mock() => MovieDetails.mockWith(id: 1);
-
-  factory MovieDetails.mockWith({required int id}) => MovieDetails(
-    id: id,
-    title: 'Test Movie $id',
-    poster: null,
-    rating: '8.5',
-    releaseDate: '2025-06-15',
-    overview: 'A great movie about testing software and building apps.',
-  );
-
   final int id;
   final String title;
   final Uri? poster;

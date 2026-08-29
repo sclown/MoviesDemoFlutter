@@ -21,19 +21,21 @@ final class SearchCard {
       releaseDate = movie.releaseDate,
       poster = movie.smallPoster();
 
-  factory SearchCard.mock() => SearchCard.mockWith(id: 1);
-
-  factory SearchCard.mockWith({required int id}) => SearchCard(
-    id: id,
-    title: 'Test movie $id',
-    rating: '7.5',
-    releaseDate: '2025-06-15',
-    poster: null,
-  );
-
   final int id;
   final String title;
   final String rating;
   final String? releaseDate;
   final Uri? poster;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SearchCard &&
+      other.id == id &&
+      other.title == title &&
+      other.rating == rating &&
+      other.releaseDate == releaseDate &&
+      other.poster == poster;
+
+  @override
+  int get hashCode => Object.hash(id, title, rating, releaseDate, poster);
 }

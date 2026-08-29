@@ -1,0 +1,17 @@
+name: movies_api_mocks
+description: A MovieServicing mock and MovieResponse fixtures for the tests.
+version: 1.0.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.8.1
+
+resolution: workspace
+
+dependencies:
+  mocktail: ^1.0.5
+  movies_api:
+    path: ../movies_api
+
+dev_dependencies:
+  lints: ^5.0.0

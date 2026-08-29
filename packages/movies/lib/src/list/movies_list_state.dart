@@ -2,6 +2,8 @@
 //  movies_list_state.dart
 //
 
+import 'package:flutter/foundation.dart';
+
 import 'movie_card.dart';
 
 final class MoviesListState {
@@ -20,25 +22,34 @@ final class MoviesListState {
     errorMessage: null,
   );
 
-  factory MoviesListState.error() => const MoviesListState(
-    movies: [],
-    isLoading: false,
-    isLoadingMore: false,
-    errorMessage: 'Some error message',
-  );
-
-  /// A grid of [count] placeholder movies, for the widget and golden tests.
-  factory MoviesListState.mockMovies(int count) => MoviesListState(
-    movies: [
-      for (var id = 1; id <= count; id++) MovieCard.mockWith(id: id),
-    ],
-    isLoading: false,
-    isLoadingMore: false,
-    errorMessage: null,
-  );
-
   final List<MovieCard> movies;
   final bool isLoading;
   final bool isLoadingMore;
   final String? errorMessage;
+
+  /// [errorMessage] is cleared unless a new one is passed — a fresh load or
+  /// page always supersedes the previous failure.
+  MoviesListState copyWith({
+    List<MovieCard>? movies,
+    bool? isLoading,
+    bool? isLoadingMore,
+    String? errorMessage,
+  }) => MoviesListState(
+    movies: movies ?? this.movies,
+    isLoading: isLoading ?? this.isLoading,
+    isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    errorMessage: errorMessage,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is MoviesListState &&
+      listEquals(other.movies, movies) &&
+      other.isLoading == isLoading &&
+      other.isLoadingMore == isLoadingMore &&
+      other.errorMessage == errorMessage;
+
+  @override
+  int get hashCode =>
+      Object.hash(Object.hashAll(movies), isLoading, isLoadingMore, errorMessage);
 }

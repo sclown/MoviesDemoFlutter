@@ -6,16 +6,16 @@ import 'package:get_it/get_it.dart';
 import 'package:movies_api/movies_api.dart';
 import 'package:movies_core/movies_core.dart';
 
-import 'search_view_model.dart';
+import 'search_cubit.dart';
 
-/// Wires the module's view model, leaving an existing registration alone so
-/// tests and goldens can substitute a stub.
+/// Wires the module's cubit, leaving an existing registration alone so tests
+/// and goldens can substitute a stub.
 void registerSearch({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
-  if (getIt.isRegistered<SearchViewModeling>()) return;
+  if (getIt.isRegistered<SearchCubit>()) return;
 
-  getIt.registerLazySingleton<SearchViewModeling>(
-    () => SearchViewModel(
+  getIt.registerLazySingleton<SearchCubit>(
+    () => SearchCubit(
       service: getIt<MovieServicing>(),
       navigation: (movie) => getIt<MovieNavigator>().navigate(movie),
     ),

@@ -2,6 +2,8 @@
 //  search_state.dart
 //
 
+import 'package:flutter/foundation.dart';
+
 import 'search_card.dart';
 
 final class SearchState {
@@ -19,31 +21,32 @@ final class SearchState {
     showEmptyLabel: false,
   );
 
-  factory SearchState.searching() => const SearchState(
-    searchResults: [],
-    isSearching: true,
-    searchQuery: 'Batman',
-    showEmptyLabel: false,
-  );
-
-  factory SearchState.noResults() => const SearchState(
-    searchResults: [],
-    isSearching: false,
-    searchQuery: 'xyzzy',
-    showEmptyLabel: true,
-  );
-
-  factory SearchState.mockResults(int count) => SearchState(
-    searchResults: [
-      for (var id = 1; id <= count; id++) SearchCard.mockWith(id: id),
-    ],
-    isSearching: false,
-    searchQuery: 'Movie',
-    showEmptyLabel: false,
-  );
-
   final List<SearchCard> searchResults;
   final bool isSearching;
   final String searchQuery;
   final bool showEmptyLabel;
+
+  SearchState copyWith({
+    List<SearchCard>? searchResults,
+    bool? isSearching,
+    String? searchQuery,
+    bool? showEmptyLabel,
+  }) => SearchState(
+    searchResults: searchResults ?? this.searchResults,
+    isSearching: isSearching ?? this.isSearching,
+    searchQuery: searchQuery ?? this.searchQuery,
+    showEmptyLabel: showEmptyLabel ?? this.showEmptyLabel,
+  );
+
+  @override
+  bool operator ==(Object other) =>
+      other is SearchState &&
+      listEquals(other.searchResults, searchResults) &&
+      other.isSearching == isSearching &&
+      other.searchQuery == searchQuery &&
+      other.showEmptyLabel == showEmptyLabel;
+
+  @override
+  int get hashCode => Object.hash(
+    Object.hashAll(searchResults), isSearching, searchQuery, showEmptyLabel);
 }

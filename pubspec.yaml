@@ -6,11 +6,13 @@ version: 1.0.0+1
 environment:
   sdk: ^3.8.1
 
-# The modules of the app, mirroring the Swift Package layout of the original.
+# The modules of the app.
 workspace:
   - packages/network_service
   - packages/movies_api
   - packages/movies_core
+  - packages/movies_api_mocks
+  - packages/movies_core_mocks
   - packages/movies
   - packages/search
   - packages/main_navigation
@@ -39,6 +41,9 @@ dev_dependencies:
     path: packages/movies_api
   movies_core:
     path: packages/movies_core
+  mocktail: ^1.0.5
+  movies_api_mocks:
+    path: packages/movies_api_mocks
   network_service:
     path: packages/network_service
 

@@ -7,19 +7,24 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:main_navigation/main_navigation.dart';
 import 'package:movies/movies.dart';
-import 'package:movies_api/mocks.dart';
 import 'package:movies_demo_flutter/main.dart';
-import 'package:network_service/mocks.dart';
-import 'package:network_service/network_service.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:movies_api/movies_api.dart';
+import 'package:movies_api_mocks/movies_api_mocks.dart';
 
 void main() {
   // `pumpAndSettle` is avoided throughout: the poster placeholders spin for as
   // long as the stubbed images never arrive, so frames never stop coming.
   setUp(() {
-    // Registered first, so `registerModules` leaves the real HTTP client out.
-    GetIt.instance.registerSingleton<NetworkClient>(
-      MockNetworkClient.success(Json.validList(from: 1, to: 5)),
-    );
+    // Registered first, so `registerModules` leaves the real service out.
+    final api = MoviesApiMock();
+    final page = movieResponse(ids: const [1, 2, 3, 4]);
+    when(() => api.fetchPopularMovies(page: any(named: 'page')))
+        .thenAnswer((_) async => page);
+    when(
+      () => api.searchMovies(query: any(named: 'query'), page: any(named: 'page')),
+    ).thenAnswer((_) async => page);
+    GetIt.instance.registerSingleton<MovieServicing>(api);
     registerModules();
   });
 

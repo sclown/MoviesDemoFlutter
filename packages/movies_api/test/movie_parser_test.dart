@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:movies_api/mocks.dart';
 import 'package:movies_api/movies_api.dart';
 import 'package:test/test.dart';
+
+import 'fixtures.dart';
 
 void main() {
   const parser = MovieParser();

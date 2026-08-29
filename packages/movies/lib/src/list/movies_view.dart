@@ -3,6 +3,7 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../l10n/generated/movies_localizations.dart';
@@ -10,7 +11,7 @@ import 'error_view.dart';
 import 'loading_view.dart';
 import 'movie_cell.dart';
 import 'movies_list_state.dart';
-import 'movies_view_model.dart';
+import 'movies_cubit.dart';
 
 /// The popular-movies screen: a two-column poster grid that pages as it is
 /// scrolled. [overlay] lets the composing module stack the search UI on top
@@ -25,12 +26,12 @@ class MoviesView extends StatefulWidget {
 }
 
 class _MoviesViewState extends State<MoviesView> {
-  late final MoviesViewModeling _viewModel = GetIt.instance<MoviesViewModeling>();
+  late final MoviesCubit _cubit = GetIt.instance<MoviesCubit>();
 
   @override
   void initState() {
     super.initState();
-    _viewModel.load();
+    _cubit.load();
   }
 
   @override
@@ -43,9 +44,9 @@ class _MoviesViewState extends State<MoviesView> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: ListenableBuilder(
-              listenable: _viewModel.state,
-              builder: (context, _) => _content(_viewModel.state.value),
+            child: BlocBuilder<MoviesCubit, MoviesListState>(
+              bloc: _cubit,
+              builder: (context, state) => _content(state),
             ),
           ),
           if (widget.overlay != null) Positioned.fill(child: widget.overlay!),
@@ -59,7 +60,7 @@ class _MoviesViewState extends State<MoviesView> {
 
     final errorMessage = state.errorMessage;
     if (errorMessage != null) {
-      return ErrorView(message: errorMessage, onRetry: _viewModel.load);
+      return ErrorView(message: errorMessage, onRetry: _cubit.load);
     }
 
     return _movieGrid(state);
@@ -82,11 +83,11 @@ class _MoviesViewState extends State<MoviesView> {
         // inside a build is not allowed.
         if (index == state.movies.length - 1) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _viewModel.loadMoreIfNeeded(currentMovieId: movie.id);
+            if (mounted) _cubit.loadMoreIfNeeded(currentMovieId: movie.id);
           });
         }
         return GestureDetector(
-          onTap: () => _viewModel.showDetails(movieId: movie.id),
+          onTap: () => _cubit.showDetails(movieId: movie.id),
           child: MovieCell(movie: movie),
         );
       },

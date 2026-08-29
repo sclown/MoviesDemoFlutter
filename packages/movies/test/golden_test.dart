@@ -11,8 +11,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
 import 'package:movies/src/list/movies_list_state.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_core_mocks/movies_core_mocks.dart';
 
+import 'fixtures.dart';
 import 'test_harness.dart';
 
 const _iPhoneSize = Size(390, 844);
@@ -38,7 +39,7 @@ void main() {
   testWidgets('movies-loading', (tester) async {
     await pumpSized(
       tester,
-      harnessMoviesView(MoviesViewModelMock(MoviesListState.empty())),
+      harnessMoviesView(moviesCubitMock(MoviesListState.empty())),
     );
 
     await expectLater(
@@ -50,7 +51,7 @@ void main() {
   testWidgets('movies-error', (tester) async {
     await pumpSized(
       tester,
-      harnessMoviesView(MoviesViewModelMock(MoviesListState.error())),
+      harnessMoviesView(moviesCubitMock(errorState())),
     );
 
     await expectLater(
@@ -62,7 +63,7 @@ void main() {
   testWidgets('movies-3', (tester) async {
     await pumpSized(
       tester,
-      harnessMoviesView(MoviesViewModelMock(MoviesListState.mockMovies(3))),
+      harnessMoviesView(moviesCubitMock(loadedState(3))),
     );
 
     await expectLater(
@@ -74,7 +75,7 @@ void main() {
   testWidgets('movies-8', (tester) async {
     await pumpSized(
       tester,
-      harnessMoviesView(MoviesViewModelMock(MoviesListState.mockMovies(8))),
+      harnessMoviesView(moviesCubitMock(loadedState(8))),
     );
 
     await expectLater(
@@ -84,7 +85,7 @@ void main() {
   });
 
   testWidgets('details', (tester) async {
-    await pumpSized(tester, harnessApp(DetailsView(movie: MovieDetails.mock())));
+    await pumpSized(tester, harnessApp(DetailsView(movie: movieDetails())));
 
     await expectLater(
       find.byType(DetailsView),

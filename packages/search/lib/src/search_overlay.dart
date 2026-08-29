@@ -3,13 +3,14 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import 'empty_search_results_view.dart';
 import 'search_bar.dart';
 import 'search_result_row.dart';
 import 'search_state.dart';
-import 'search_view_model.dart';
+import 'search_cubit.dart';
 
 /// Sits on top of whatever screen hosts it: a bottom search field that dims
 /// the content behind it and reveals live results while it is active.
@@ -21,15 +22,14 @@ class SearchOverlay extends StatefulWidget {
 }
 
 class _SearchOverlayState extends State<SearchOverlay> {
-  late final SearchViewModeling _viewModel =
-      GetIt.instance<SearchViewModeling>();
+  late final SearchCubit _cubit = GetIt.instance<SearchCubit>();
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _controller.text = _viewModel.state.value.searchQuery;
+    _controller.text = _cubit.state.searchQuery;
     _controller.addListener(_onQueryChanged);
     _focusNode.addListener(() => setState(() {}));
   }
@@ -42,20 +42,19 @@ class _SearchOverlayState extends State<SearchOverlay> {
     super.dispose();
   }
 
-  void _onQueryChanged() => _viewModel.updateSearchQuery(_controller.text);
+  void _onQueryChanged() => _cubit.updateSearchQuery(_controller.text);
 
   void _clear() {
     _controller.clear();
-    _viewModel.updateSearchQuery('');
+    _cubit.updateSearchQuery('');
     _focusNode.unfocus();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _viewModel.state,
-      builder: (context, _) {
-        final state = _viewModel.state.value;
+    return BlocBuilder<SearchCubit, SearchState>(
+      bloc: _cubit,
+      builder: (context, state) {
         final isActive = _focusNode.hasFocus || state.searchQuery.isNotEmpty;
 
         // Both slots are always present and keyed: if the children shifted as
@@ -142,7 +141,7 @@ class _SearchOverlayState extends State<SearchOverlay> {
           final movie = state.searchResults[index];
           return GestureDetector(
             onTap: () {
-              _viewModel.showDetails(movieId: movie.id);
+              _cubit.showDetails(movieId: movie.id);
               _focusNode.unfocus();
             },
             child: SearchResultRow(movie: movie),

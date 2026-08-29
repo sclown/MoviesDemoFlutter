@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_core/movies_core.dart';
+import 'package:movies_core_mocks/movies_core_mocks.dart';
 
 import 'test_harness.dart';
 
@@ -9,7 +10,7 @@ void main() {
   testWidgets('shows the title, rating, release date and overview', (
     tester,
   ) async {
-    final movie = MovieDetails.mock();
+    final movie = movieDetails();
     await tester.pumpWidget(harnessApp(DetailsView(movie: movie)));
 
     expect(find.text(movie.title), findsOne);
@@ -50,7 +51,7 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
-    await tester.pumpWidget(harnessApp(DetailsView(movie: MovieDetails.mock())));
+    await tester.pumpWidget(harnessApp(DetailsView(movie: movieDetails())));
 
     expect(find.bySemanticsLabel("Movie's poster"), findsOne);
     expect(find.bySemanticsLabel('Rating'), findsOne);
@@ -61,7 +62,7 @@ void main() {
   testWidgets('translates into German', (tester) async {
     await tester.pumpWidget(
       harnessApp(
-        DetailsView(movie: MovieDetails.mock()),
+        DetailsView(movie: movieDetails()),
         locale: const Locale('de'),
       ),
     );

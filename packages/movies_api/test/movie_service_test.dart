@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:movies_api/mocks.dart';
 import 'package:movies_api/movies_api.dart';
-import 'package:network_service/mocks.dart';
 import 'package:network_service/network_service.dart';
 import 'package:test/test.dart';
+
+import 'fixtures.dart';
 
 void main() {
   test('fetch returns movies', () async {

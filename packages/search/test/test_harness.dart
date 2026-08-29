@@ -2,48 +2,36 @@
 //  test_harness.dart — the harness the widget and golden tests share
 //
 
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:search/search.dart';
+import 'package:search/src/search_cubit.dart';
 import 'package:search/src/search_state.dart';
-import 'package:search/src/search_view_model.dart';
 
-/// Publishes whatever state it is handed and records the queries and taps
-/// the overlay produces.
-final class SearchViewModelMock implements SearchViewModeling {
-  SearchViewModelMock(SearchState state) : state = ValueNotifier(state);
+/// Emits the states a test hands it and records the calls the overlay makes.
+class SearchCubitMock extends MockCubit<SearchState> implements SearchCubit {}
 
-  @override
-  final ValueNotifier<SearchState> state;
-
-  final queries = <String>[];
-  final shownDetails = <int>[];
-
-  @override
-  void updateSearchQuery(String query) {
-    queries.add(query);
-    final current = state.value;
-    state.value = SearchState(
-      searchResults: current.searchResults,
-      isSearching: current.isSearching,
-      searchQuery: query,
-      showEmptyLabel: current.showEmptyLabel,
-    );
-  }
-
-  @override
-  void showDetails({required int movieId}) => shownDetails.add(movieId);
+/// A cubit stuck on [state], or replaying [stream] when one is given.
+SearchCubitMock searchCubitMock(
+  SearchState state, {
+  Stream<SearchState>? stream,
+}) {
+  final cubit = SearchCubitMock();
+  whenListen(
+    cubit,
+    stream ?? const Stream<SearchState>.empty(),
+    initialState: state,
+  );
+  return cubit;
 }
 
 /// The overlay on a black background.
-Widget harnessSearchOverlay(SearchViewModelMock viewModel, {Locale? locale}) {
-  GetIt.instance.registerSingleton<SearchViewModeling>(viewModel);
+Widget harnessSearchOverlay(SearchCubitMock cubit, {Locale? locale}) {
+  GetIt.instance.registerSingleton<SearchCubit>(cubit);
   return harnessApp(
-    const Scaffold(
-      backgroundColor: Colors.black,
-      body: SearchOverlay(),
-    ),
+    const Scaffold(backgroundColor: Colors.black, body: SearchOverlay()),
     locale: locale,
   );
 }
