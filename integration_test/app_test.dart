@@ -1,16 +1,22 @@
 //
 //  app_test.dart — end-to-end tests driving the composed app against the real
-//  TMDB API. They need a device or simulator and a key:
+//  TMDB API. They need a booted device or simulator and a key:
 //
-//    flutter test integration_test --dart-define=TMDB_API_KEY=$TMDB_API_KEY
+//    flutter test integration_test --dart-define-from-file=.env.local
+//
+//  Everything here is matched by widget type, never by on-screen text: the app
+//  is localized, so text assertions would fail on a device that is not set to
+//  English. The translations are asserted in the widget tests, which pin the
+//  locale themselves.
 //
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:main_navigation/main_navigation.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_demo_flutter/main.dart' as app;
+import 'package:movies_demo_flutter/modules.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +36,9 @@ void main() {
   }
 
   setUp(registerModules);
+  // Without this the cubits, the cache and the navigator survive into the next
+  // test, which then starts on whatever screen the last one left behind.
+  tearDown(GetIt.instance.reset);
 
   /// The first poster in the grid.
   final firstCell = find
@@ -42,14 +51,14 @@ void main() {
   testWidgets('the movies grid appears on launch', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
 
-    await waitFor(tester, find.text('Popular Movies'));
+    await waitFor(tester, find.byType(MoviesView));
     await waitFor(tester, find.byType(GridView));
   });
 
   testWidgets('the search field exists', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
 
-    await waitFor(tester, find.bySemanticsLabel('Search movies'));
+    await waitFor(tester, find.byType(TextField));
   });
 
   testWidgets('tapping a movie opens its details', (tester) async {
@@ -76,6 +85,6 @@ void main() {
     await waitFor(tester, find.byType(DetailsView));
 
     await tester.pageBack();
-    await waitFor(tester, find.text('Popular Movies'));
+    await waitFor(tester, find.byType(GridView));
   });
 }

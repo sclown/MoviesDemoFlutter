@@ -18,7 +18,8 @@ void registerMovies({GetIt? container}) {
   getIt.registerLazySingleton<MoviesCubit>(
     () => MoviesCubit(
       service: getIt<MovieServicing>(),
-      navigation: (movie) => getIt<MovieNavigator>().navigate(movie),
+      cache: getIt<MovieCache>(),
+      navigation: (id) => getIt<MovieNavigator>().navigate(id),
     ),
   );
 }

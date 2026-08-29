@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movies/movies.dart';
+import 'package:get_it/get_it.dart';
 import 'package:movies_core/movies_core.dart';
 import 'package:movies_core_mocks/movies_core_mocks.dart';
 
 import 'test_harness.dart';
 
 void main() {
+  tearDown(GetIt.instance.reset);
+
   testWidgets('shows the title, rating, release date and overview', (
     tester,
   ) async {
     final movie = movieDetails();
-    await tester.pumpWidget(harnessApp(DetailsView(movie: movie)));
+    await tester.pumpWidget(harnessDetailsView(movie));
 
     expect(find.text(movie.title), findsOne);
     expect(find.text('8.5'), findsOne);
@@ -28,7 +30,7 @@ void main() {
       releaseDate: null,
       overview: 'No release date on record.',
     );
-    await tester.pumpWidget(harnessApp(const DetailsView(movie: movie)));
+    await tester.pumpWidget(harnessDetailsView(movie));
 
     expect(find.textContaining('Release date'), findsNothing);
   });
@@ -42,7 +44,7 @@ void main() {
       releaseDate: '',
       overview: 'No release date on record.',
     );
-    await tester.pumpWidget(harnessApp(const DetailsView(movie: movie)));
+    await tester.pumpWidget(harnessDetailsView(movie));
 
     expect(find.textContaining('Release date'), findsNothing);
   });
@@ -51,7 +53,7 @@ void main() {
     tester,
   ) async {
     final handle = tester.ensureSemantics();
-    await tester.pumpWidget(harnessApp(DetailsView(movie: movieDetails())));
+    await tester.pumpWidget(harnessDetailsView(movieDetails()));
 
     expect(find.bySemanticsLabel("Movie's poster"), findsOne);
     expect(find.bySemanticsLabel('Rating'), findsOne);
@@ -59,12 +61,17 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('shows the unavailable state for an id the cache never saw', (
+    tester,
+  ) async {
+    await tester.pumpWidget(harnessMissingDetailsView());
+
+    expect(find.text('This movie is no longer available.'), findsOne);
+  });
+
   testWidgets('translates into German', (tester) async {
     await tester.pumpWidget(
-      harnessApp(
-        DetailsView(movie: movieDetails()),
-        locale: const Locale('de'),
-      ),
+      harnessDetailsView(movieDetails(), locale: const Locale('de')),
     );
 
     expect(find.text('Erscheinungsdatum: 2025-06-15'), findsOne);

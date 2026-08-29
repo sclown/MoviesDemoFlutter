@@ -85,7 +85,7 @@ void main() {
   });
 
   testWidgets('details', (tester) async {
-    await pumpSized(tester, harnessApp(DetailsView(movie: movieDetails())));
+    await pumpSized(tester, harnessDetailsView(movieDetails()));
 
     await expectLater(
       find.byType(DetailsView),

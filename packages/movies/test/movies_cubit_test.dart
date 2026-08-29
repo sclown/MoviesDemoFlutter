@@ -28,10 +28,15 @@ MoviesApiMock apiFailing(Object error) {
 
 MoviesCubit makeCubit(
   MoviesApiMock api, {
-  void Function(MovieDetails movie) navigation = _ignore,
-}) => MoviesCubit(service: api, navigation: navigation);
+  MovieCache? cache,
+  void Function(int movieId) navigation = _ignore,
+}) => MoviesCubit(
+  service: api,
+  cache: cache ?? MovieCache(),
+  navigation: navigation,
+);
 
-void _ignore(MovieDetails movie) {}
+void _ignore(int movieId) {}
 
 /// Lets an in-flight request settle before the next call.
 Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 10));
@@ -178,28 +183,31 @@ void main() {
     expect: () => [loading(), loaded(movies: hasLength(2))],
   );
 
-  test('show details triggers navigation', () async {
-    MovieDetails? navigated;
+  test('show details caches the movie and navigates to its id', () async {
+    int? navigated;
+    final cache = MovieCache();
     final cubit = makeCubit(
       apiReturning([movieResponse(ids: [1])]),
-      navigation: (movie) => navigated = movie,
+      cache: cache,
+      navigation: (id) => navigated = id,
     );
 
     cubit.load();
     await settle();
     cubit.showDetails(movieId: 1);
 
-    expect(navigated, isNotNull);
-    expect(navigated!.id, 1);
-    expect(navigated!.title, 'Test Movie 1');
+    expect(navigated, 1);
+    // The details screen renders straight out of the cache.
+    expect(cache[1], isNotNull);
+    expect(cache[1]!.title, 'Test Movie 1');
     await cubit.close();
   });
 
   test('show details ignores an unknown id', () async {
-    MovieDetails? navigated;
+    int? navigated;
     final cubit = makeCubit(
       apiReturning([movieResponse(ids: [1, 2])]),
-      navigation: (movie) => navigated = movie,
+      navigation: (id) => navigated = id,
     );
 
     cubit.load();

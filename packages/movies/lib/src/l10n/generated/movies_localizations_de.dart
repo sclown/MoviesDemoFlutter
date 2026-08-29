@@ -30,4 +30,7 @@ class MoviesLocalizationsDe extends MoviesLocalizations {
 
   @override
   String get retry => 'Erneut versuchen';
+
+  @override
+  String get movieUnavailable => 'Dieser Film ist nicht mehr verfügbar.';
 }

@@ -139,6 +139,12 @@ abstract class MoviesLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// Shown when the details screen is opened for a movie that was never listed.
+  ///
+  /// In en, this message translates to:
+  /// **'This movie is no longer available.'**
+  String get movieUnavailable;
 }
 
 class _MoviesLocalizationsDelegate

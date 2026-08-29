@@ -15,15 +15,18 @@ class SearchCubit extends Cubit<SearchState> {
   SearchCubit({
     SearchState? state,
     required MovieServicing service,
-    void Function(MovieDetails movie) navigation = _noNavigation,
+    required MovieCache cache,
+    void Function(int movieId) navigation = _noNavigation,
     Duration debounce = const Duration(milliseconds: 500),
   }) : _service = service,
+       _cache = cache,
        _navigation = navigation,
        _debounce = debounce,
        super(state ?? SearchState.empty());
 
   final MovieServicing _service;
-  final void Function(MovieDetails movie) _navigation;
+  final MovieCache _cache;
+  final void Function(int movieId) _navigation;
   final Duration _debounce;
 
   List<Movie> _searchResults = [];
@@ -41,12 +44,7 @@ class SearchCubit extends Cubit<SearchState> {
   }
 
   void showDetails({required int movieId}) {
-    for (final movie in _searchResults) {
-      if (movie.id == movieId) {
-        _navigation(movie.details());
-        return;
-      }
-    }
+    if (_cache.contains(movieId)) _navigation(movieId);
   }
 
   void _debounceSearch(String query) {
@@ -90,6 +88,9 @@ class SearchCubit extends Cubit<SearchState> {
       final response = await _service.searchMovies(query: query);
       if (token.isCancelled) return;
       _searchResults = response.results;
+      // The details screen reads from the cache, so results have to land there
+      // before a tap can open one.
+      _cache.putAll([for (final movie in _searchResults) movie.details()]);
     } catch (_) {
       if (token.isCancelled) return;
       _searchResults = [];
@@ -107,7 +108,7 @@ class SearchCubit extends Cubit<SearchState> {
     );
   }
 
-  static void _noNavigation(MovieDetails movie) {}
+  static void _noNavigation(int movieId) {}
 }
 
 /// Marks a superseded search so it drops its result — see the note in

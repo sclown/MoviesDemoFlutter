@@ -33,5 +33,9 @@
   "retry": "Retry",
   "@retry": {
     "description": "Button that re-attempts loading after an error."
+  },
+  "movieUnavailable": "This movie is no longer available.",
+  "@movieUnavailable": {
+    "description": "Shown when the details screen is opened for a movie that was never listed."
   }
 }

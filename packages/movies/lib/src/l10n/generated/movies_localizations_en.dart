@@ -30,4 +30,7 @@ class MoviesLocalizationsEn extends MoviesLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get movieUnavailable => 'This movie is no longer available.';
 }

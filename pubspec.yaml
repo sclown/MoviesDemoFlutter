@@ -15,7 +15,6 @@ workspace:
   - packages/movies_core_mocks
   - packages/movies
   - packages/search
-  - packages/main_navigation
 
 dependencies:
   flutter:
@@ -24,10 +23,14 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   get_it: ^8.0.3
-  main_navigation:
-    path: packages/main_navigation
   movies:
     path: packages/movies
+  movies_api:
+    path: packages/movies_api
+  movies_core:
+    path: packages/movies_core
+  network_service:
+    path: packages/network_service
   search:
     path: packages/search
 
@@ -37,15 +40,9 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  movies_api:
-    path: packages/movies_api
-  movies_core:
-    path: packages/movies_core
   mocktail: ^1.0.5
   movies_api_mocks:
     path: packages/movies_api_mocks
-  network_service:
-    path: packages/network_service
 
 flutter:
   uses-material-design: true

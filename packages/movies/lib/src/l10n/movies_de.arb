@@ -6,5 +6,6 @@
   "popularMovies": "Beliebte Filme",
   "rating": "Bewertung",
   "releaseDate": "Erscheinungsdatum: {date}",
-  "retry": "Erneut versuchen"
+  "retry": "Erneut versuchen",
+  "movieUnavailable": "Dieser Film ist nicht mehr verfügbar."
 }

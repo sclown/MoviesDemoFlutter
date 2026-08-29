@@ -1,0 +1,11 @@
+{
+  // Passes TMDB_API_KEY to test runs started from the editor, which the
+  // integration tests need — they drive the app against the real API. Unit
+  // tests ignore it; they stub the service.
+  //
+  // This applies to every `flutter test` run in this workspace, and the flag
+  // is a hard error when the file is absent ("Did not find the file passed to
+  // --dart-define-from-file"). So `.env.local` has to exist before running
+  // tests from the editor: `cp .env.local.example .env.local` and fill it in.
+  "dart.flutterTestAdditionalArgs": ["--dart-define-from-file=.env.local"]
+}

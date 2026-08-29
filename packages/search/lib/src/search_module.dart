@@ -17,7 +17,8 @@ void registerSearch({GetIt? container}) {
   getIt.registerLazySingleton<SearchCubit>(
     () => SearchCubit(
       service: getIt<MovieServicing>(),
-      navigation: (movie) => getIt<MovieNavigator>().navigate(movie),
+      cache: getIt<MovieCache>(),
+      navigation: (id) => getIt<MovieNavigator>().navigate(id),
     ),
   );
 }

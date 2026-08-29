@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
 import 'package:movies/src/list/movies_cubit.dart';
 import 'package:movies/src/list/movies_list_state.dart';
+import 'package:movies_core/movies_core.dart';
 
 /// Emits the states a test hands it and records the calls the view makes.
 class MoviesCubitMock extends MockCubit<MoviesListState>
@@ -37,6 +38,18 @@ Widget harnessMoviesView(
 }) {
   GetIt.instance.registerSingleton<MoviesCubit>(cubit);
   return harnessApp(MoviesView(overlay: overlay), locale: locale);
+}
+
+/// Seeds the cache with [movie] and renders its details screen.
+Widget harnessDetailsView(MovieDetails movie, {Locale? locale}) {
+  GetIt.instance.registerSingleton<MovieCache>(MovieCache()..put(movie));
+  return harnessApp(DetailsView(movieId: movie.id), locale: locale);
+}
+
+/// The details screen for an id the cache never saw.
+Widget harnessMissingDetailsView({Locale? locale}) {
+  GetIt.instance.registerSingleton<MovieCache>(MovieCache());
+  return harnessApp(const DetailsView(movieId: 999), locale: locale);
 }
 
 Widget harnessApp(Widget child, {Locale? locale}) {

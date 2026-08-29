@@ -4,12 +4,66 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:movies_core/movies_core.dart';
 
 import '../l10n/generated/movies_localizations.dart';
 
+/// Renders the movie [movieId] out of the [MovieCache]. The cache is filled by
+/// the list and search screens, so an id that was never listed — a link opened
+/// from cold, say — falls through to the unavailable state.
 class DetailsView extends StatelessWidget {
-  const DetailsView({required this.movie, super.key});
+  const DetailsView({required this.movieId, super.key});
+
+  final int movieId;
+
+  @override
+  Widget build(BuildContext context) {
+    final movie = GetIt.instance<MovieCache>()[movieId];
+    if (movie == null) return const _UnavailableView();
+    return _DetailsContent(movie: movie);
+  }
+}
+
+class _UnavailableView extends StatelessWidget {
+  const _UnavailableView();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MoviesLocalizations.of(context);
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(centerTitle: true),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.movie_outlined,
+                size: 52,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.movieUnavailable,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailsContent extends StatelessWidget {
+  const _DetailsContent({required this.movie});
 
   final MovieDetails movie;
 

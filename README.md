@@ -36,8 +36,13 @@ flutter run --dart-define-from-file=.env.local
 `--dart-define-from-file` is built into Flutter — no `dotenv` package involved.
 It reads `.env` (and `.json`) files and exposes each entry to
 `String.fromEnvironment`. The bundled `.vscode/launch.json` already passes the
-flag, so **Run** in VS Code needs nothing extra; in Android Studio put
+flag, so **Run** in VS Code needs nothing extra, and `.vscode/settings.json`
+passes it to test runs too; in Android Studio put
 `--dart-define-from-file=.env.local` under *Additional run args*.
+
+Because of that settings entry, **`.env.local` must exist before running any
+test from VS Code** — the flag is a hard error when the file is missing, even
+for the unit tests that don't need a key.
 
 Two alternatives work as well, and take precedence in this order:
 
@@ -66,17 +71,16 @@ module can only reach what it declares in its `pubspec.yaml`.
 |---|---|
 | `packages/network_service` | `NetworkClient` seam over `package:http`, plus the domain-level `NetworkError`s. |
 | `packages/movies_api` | TMDB DTOs, JSON parsing, `MovieService`. |
-| `packages/movies_core` | `MovieDetails`, `MovieNavigator`, poster and rating helpers. |
+| `packages/movies_core` | `MovieDetails`, `MovieCache`, the `MovieNavigator` seam, poster and rating helpers. Depends on no packages. |
 | `packages/movies` | The popular-movies grid and the details screen. |
 | `packages/search` | The search overlay. |
-| `packages/main_navigation` | Owns the navigation stack and composes every module. |
 | `packages/movies_api_mocks` | A `MovieServicing` mock and the `MovieResponse` values it returns. |
 | `packages/movies_core_mocks` | Placeholder domain values. |
-| `lib/main.dart` | Theme, localization delegates, entry point. |
+| `lib/` | The route table, the dependency graph, the theme and the entry point. |
 
 The feature modules never import one another. `movies` and `search` depend on
-the `MovieNavigator` interface in `movies_core`; `main_navigation` is the only
-package that knows every module exists.
+the `MovieNavigator` interface in `movies_core`; `lib/` is the only place that
+knows every module exists.
 
 The two `…_mocks` packages are `dev_dependencies` only, so nothing in them
 reaches a shipped binary. Neither is reachable from the packages it mocks, so
@@ -91,9 +95,21 @@ that package needs them.
 - **Dependency injection** — [`get_it`](https://pub.dev/packages/get_it). Each
   module exposes a `register…()` that skips anything already registered, so
   tests and the golden harness substitute a mock simply by registering first.
-- **Navigation** — a declarative `Navigator` whose `pages` are derived from
-  `MainViewModel.path`. Features push through the `MovieNavigator` abstraction
-  and stay unaware of each other.
+- **Navigation** — Flutter's own `Navigator`, driven from `lib/navigation.dart`
+  through a `GlobalKey<NavigatorState>` so a cubit can push without a
+  `BuildContext`. Features push a movie *id* through the `MovieNavigator`
+  abstraction, so only the app knows that opening a movie means showing
+  `DetailsView`; the modules stay unaware of each other and of the
+  destinations. There is no routing package: the app has one push, and deep
+  links would need `MovieCache` to be fillable from the network first.
+- **Details data** — the list and search screens write what they load into
+  `MovieCache`, and the details screen renders straight out of it by id. That
+  keeps the route free of any attached object, so nothing can be dropped
+  between the push and the build. The cache is filled only by those screens,
+  so an id that was never listed — a link opened from cold, or a restart on
+  the details route — falls through to the screen's unavailable state rather
+  than fetching. Making those links work would mean adding a
+  `fetchMovieDetails(id)` call against TMDB's `/movie/{id}`.
 - **Task cancellation** — Dart futures cannot be cancelled, so a superseded load
   is handed a token and drops its result.
 - **Images** — [`cached_network_image`](https://pub.dev/packages/cached_network_image).

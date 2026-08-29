@@ -15,8 +15,7 @@ for package in packages/network_service packages/movies_api; do
   (cd "$package" && dart test "$@")
 done
 
-for package in packages/movies_core packages/movies packages/search \
-               packages/main_navigation; do
+for package in packages/movies_core packages/movies packages/search; do
   echo "==> $package"
   (cd "$package" && flutter test "$@")
 done

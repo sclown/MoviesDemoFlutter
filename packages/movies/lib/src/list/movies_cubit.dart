@@ -13,13 +13,16 @@ class MoviesCubit extends Cubit<MoviesListState> {
   MoviesCubit({
     MoviesListState? state,
     required MovieServicing service,
-    void Function(MovieDetails movie) navigation = _noNavigation,
+    required MovieCache cache,
+    void Function(int movieId) navigation = _noNavigation,
   }) : _service = service,
+       _cache = cache,
        _navigation = navigation,
        super(state ?? MoviesListState.empty());
 
   final MovieServicing _service;
-  final void Function(MovieDetails movie) _navigation;
+  final MovieCache _cache;
+  final void Function(int movieId) _navigation;
 
   List<Movie> _movies = [];
   bool _hasLoaded = false;
@@ -54,13 +57,13 @@ class MoviesCubit extends Cubit<MoviesListState> {
   }
 
   void showDetails({required int movieId}) {
-    for (final movie in _movies) {
-      if (movie.id == movieId) {
-        _navigation(movie.details());
-        return;
-      }
-    }
+    if (_cache.contains(movieId)) _navigation(movieId);
   }
+
+  /// The details screen reads from the cache, so every movie shown in the grid
+  /// has to be in it before a tap can open one.
+  void _cacheMovies() =>
+      _cache.putAll([for (final movie in _movies) movie.details()]);
 
   Future<void> _performLoad(_Cancellation token) async {
     emit(state.copyWith(isLoading: true));
@@ -73,6 +76,7 @@ class MoviesCubit extends Cubit<MoviesListState> {
       _movies = response.results;
       _totalPages = response.totalPages;
       _hasLoaded = true;
+      _cacheMovies();
     } catch (error) {
       if (token.isCancelled) return;
       _hasLoaded = false;
@@ -105,6 +109,7 @@ class MoviesCubit extends Cubit<MoviesListState> {
       _movies = merged;
       _totalPages = response.totalPages;
       _currentPage = nextPage;
+      _cacheMovies();
     } catch (_) {
       if (token.isCancelled) return;
     }
@@ -122,7 +127,7 @@ class MoviesCubit extends Cubit<MoviesListState> {
     _ => error.toString(),
   };
 
-  static void _noNavigation(MovieDetails movie) {}
+  static void _noNavigation(int movieId) {}
 }
 
 /// Dart futures cannot be cancelled, so a superseded load is handed a token

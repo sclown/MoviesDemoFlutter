@@ -8,7 +8,11 @@ plugins {
 android {
     namespace = "org.kurkin.movies_demo_flutter"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // `flutter.ndkVersion` is 26.3.11579264 for this Flutter version, but
+    // path_provider_android and sqflite_android (pulled in by
+    // cached_network_image) need 27. NDK releases are backward compatible,
+    // so the highest requirement wins.
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

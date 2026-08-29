@@ -1,10 +1,10 @@
 # Code Review — MoviesDemoFlutter
 
 **Reviewed:** 2026-08-28 · **Updated:** 2026-08-29
-**Scope:** whole codebase (app + all eight workspace packages)
-**Verification:** `flutter analyze` → *No issues found*. `./scripts/test_all.sh` → all 89
-automated tests pass. The 5 `integration_test/` cases were **not** run (they need a device and a
-real TMDB key).
+**Scope:** whole codebase (app + all seven workspace packages)
+**Verification:** `flutter analyze` → *No issues found*. `./scripts/test_all.sh` → all 86 automated
+tests pass across 6 suites. `flutter test integration_test` → 5/5 on an iPhone 16 Pro simulator
+against the live TMDB API. `flutter build apk --debug|--release` and `build appbundle` all succeed.
 
 ---
 
@@ -45,35 +45,12 @@ from tests. A hung request hangs until the OS gives up.
 
 Fix: `.timeout(const Duration(seconds: 30))`.
 
-### 3. `onDidRemovePage` pops blindly
-
-`packages/main_navigation/lib/src/main_navigation_view.dart:42` does
-`path.sublist(0, path.length - 1)` regardless of *which* page was removed. Two removals before a
-rebuild make the second call `sublist(0, -1)` → `RangeError`.
-
-```dart
-onDidRemovePage: (page) => _viewModel.reset(
-  _viewModel.path.where((m) => page.key != ValueKey('details-${m.id}')).toList(),
-),
-```
-
-The same `ValueKey('details-${movie.id}')` also collides if one movie appears twice on the stack.
-
-### 4. TMDB is always asked for English
+### 3. TMDB is always asked for English
 
 `packages/movies_api/lib/src/movie_service.dart:78` hardcodes `'language': 'en-US'` while the app
 ships German UI strings. In German the chrome is translated and every title and overview is not.
 
-### 5. The integration tests almost certainly fail as a suite
-
-`integration_test/app_test.dart:32` is `setUp(registerModules)` with no `tearDown(GetIt.instance.reset)`
-— unlike `test/app_test.dart`, which does reset. `MainViewModel` is a singleton, so the movie pushed
-in *"tapping a movie opens its details"* is still on the path when the next test starts; the grid and
-search field are then offstage, and `find.byType(...)` skips offstage by default.
-
-Not confirmed by a run (needs a device and a key) — treat as "very likely broken".
-
-### 6. `isLoadingMore` is tracked but never rendered
+### 4. `isLoadingMore` is tracked but never rendered
 
 Emitted by `MoviesCubit`, asserted in the cubit tests, read by no widget. Either show a footer
 spinner in `MoviesView._movieGrid` or drop the field.
@@ -103,6 +80,12 @@ global and tests become order-dependent. Passing the cubit in as a constructor a
 module still doing the wiring) removes the coupling without changing the architecture.
 
 ---
+
+### `MovieCache` grows without bound
+
+`packages/movies_core/lib/src/movie_cache.dart` keeps every movie the grid or a search ever returned,
+with no eviction and no staleness check. Harmless at demo scale; a TTL or an LRU bound is the fix if
+the catalogue or the session gets long.
 
 ## Open — smaller
 
@@ -141,9 +124,32 @@ module still doing the wiring) removes the coupling without changing the archite
   `packages/movies_api/test/fixtures.dart`. **Trade-off:** those suites no longer exercise URL
   building, HTTP status handling or JSON parsing — that coverage now lives solely in `movies_api`'s
   own tests, and nothing exercises the seam between the two layers end to end.
+- **`NoopNavigator` and `registerMoviesCore()` are gone.** They were unreachable — nothing outside
+  their own tests called `registerMoviesCore()` — and the only path that reached the no-op was the
+  one where it silently disabled every poster tap, since both registrations guard on
+  `if (!isRegistered<MovieNavigator>())` and the first one wins. Both cubits already default to their
+  own no-op callback, so nothing was protecting anything. `MovieNavigator` stays: it is the seam that
+  keeps `search` from importing `movies`. `movies_core` now depends on no packages at all.
+- **The integration suite passes.** It was leaking state between tests — `setUp(registerModules)`
+  with no `tearDown(GetIt.instance.reset)`, so the cubits, the cache and the navigator survived into
+  the next test and it started on whatever screen the last one left behind. Confirmed by running it
+  on a simulator: 4 passed, `navigating back returns to the grid` failed. With the teardown added it
+  is 5/5, and the run dropped from 79s to 33s.
 - **The retry path is now tested.** Previously, deleting `_hasLoaded = false` from `_performLoad`'s
   catch block left every test green while the Retry button went dead. `load can be retried after a
   failure` in `movies_cubit_test.dart` closes that hole.
+- **The details screen reads from a cache instead of a routed object.** `MovieNavigator.navigate`
+  takes an id, the route is `/details/:id`, and `MovieCache` in `movies_core` is filled by the list
+  and search cubits. This removed an unchecked `state.extra! as MovieDetails` cast that threw when
+  the route was reached without one. **Known limit:** the cache is never populated from the network,
+  so a cold-start deep link would always miss and show the unavailable state. Deep links are not
+  supported at all today; making them work means adding `fetchMovieDetails(id)` first.
+- **Navigation moved to the app and onto Flutter's `Navigator`.** `packages/main_navigation`,
+  `MainViewModel` and the hand-rolled `Navigator(pages:)` are gone; `lib/navigation.dart` holds an
+  `AppNavigator` that pushes through a `GlobalKey<NavigatorState>`. This retired the
+  `onDidRemovePage` bug, which was a defect in the hand-rolled page-stack management. `go_router` was
+  trialled and removed: with one push and no deep links it earned nothing, and its `/details/:id`
+  builder carried an unchecked `int.parse` that threw on a malformed link.
 - **`packages/*/build/` is gitignored.** The root `/build/` rule is anchored and missed roughly
   200 MB of per-package build output.
 

@@ -5,11 +5,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:main_navigation/main_navigation.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_demo_flutter/main.dart';
+import 'package:movies_demo_flutter/modules.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:movies_api/movies_api.dart';
+import 'package:movies_core/movies_core.dart';
 import 'package:movies_api_mocks/movies_api_mocks.dart';
 
 void main() {
@@ -45,6 +46,8 @@ void main() {
     await tester.pump();
 
     await tester.tap(find.text('Test Movie 2').first);
+    // The push is scheduled on the next frame; then the transition runs.
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(DetailsView), findsOne);
@@ -52,24 +55,29 @@ void main() {
     expect(find.text('7.5'), findsOne);
 
     await tester.pageBack();
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(DetailsView), findsNothing);
     expect(find.text('Popular Movies'), findsOne);
   });
 
-  testWidgets('the navigator drives the path', (tester) async {
+  testWidgets('the navigator opens the tapped movie from the cache', (
+    tester,
+  ) async {
     await tester.pumpWidget(const MoviesDemoApp());
     await tester.pump();
 
-    final mainViewModel = GetIt.instance<MainViewModel>();
-    expect(mainViewModel.path, isEmpty);
+    expect(find.byType(DetailsView), findsNothing);
 
     await tester.tap(find.text('Test Movie 1').first);
+    await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(mainViewModel.path, hasLength(1));
-    expect(mainViewModel.path.first.title, 'Test Movie 1');
+    // The screen renders out of the cache the grid filled, by id alone.
+    expect(find.byType(DetailsView), findsOne);
+    expect(GetIt.instance<MovieCache>()[1]?.title, 'Test Movie 1');
+    expect(find.text('Test Movie 1'), findsWidgets);
   });
 
   testWidgets('searching from the grid shows results', (tester) async {

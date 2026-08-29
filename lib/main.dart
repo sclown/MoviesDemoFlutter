@@ -4,9 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:main_navigation/main_navigation.dart';
 import 'package:movies/movies.dart';
 import 'package:search/search.dart';
+
+import 'modules.dart';
+import 'navigation.dart';
 
 void main() {
   registerModules();
@@ -19,6 +21,7 @@ class MoviesDemoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Movies',
       debugShowCheckedModeBanner: false,
       // Dark only — there is no light variant.
@@ -31,7 +34,7 @@ class MoviesDemoApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: MoviesLocalizations.supportedLocales,
-      home: const MainNavigation(),
+      home: const MoviesView(overlay: SearchOverlay()),
     );
   }
 }

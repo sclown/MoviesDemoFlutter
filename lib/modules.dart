@@ -1,5 +1,5 @@
 //
-//  module.dart
+//  modules.dart
 //
 
 import 'package:get_it/get_it.dart';
@@ -9,23 +9,22 @@ import 'package:movies_core/movies_core.dart';
 import 'package:network_service/network_service.dart';
 import 'package:search/search.dart';
 
-import 'main_view_model.dart';
+import 'navigation.dart';
 
-/// Composes the whole graph, bottom up. The navigation module is the only
-/// place that knows every module exists — the features only know the
-/// abstractions in `movies_core`.
+/// Composes the whole graph, bottom up. The app is the only place that knows
+/// every module exists — the features only know the abstractions in
+/// `movies_core`.
 void registerModules({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
 
   registerNetworkService(container: getIt);
   registerMoviesApi(container: getIt);
 
-  if (!getIt.isRegistered<MainViewModel>()) {
-    getIt.registerLazySingleton<MainViewModel>(MainViewModel.new);
+  if (!getIt.isRegistered<MovieCache>()) {
+    getIt.registerLazySingleton<MovieCache>(MovieCache.new);
   }
-  // The real navigator replaces `movies_core`'s no-op default.
   if (!getIt.isRegistered<MovieNavigator>()) {
-    getIt.registerLazySingleton<MovieNavigator>(() => getIt<MainViewModel>());
+    getIt.registerLazySingleton<MovieNavigator>(AppNavigator.new);
   }
 
   registerMovies(container: getIt);

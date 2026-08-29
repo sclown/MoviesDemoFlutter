@@ -23,16 +23,18 @@ MoviesApiMock apiFailing(Object error) {
 }
 SearchCubit makeCubit({
   MoviesApiMock? api,
-  void Function(MovieDetails movie) navigation = _ignore,
+  MovieCache? cache,
+  void Function(int movieId) navigation = _ignore,
   Duration debounce = const Duration(milliseconds: 10),
 }) => SearchCubit(
   service: api ?? apiReturning(const []),
+  cache: cache ?? MovieCache(),
   navigation: navigation,
   // The debounce itself is asserted separately; the rest of the suite would
   // only be waiting on a timer.
   debounce: debounce,
 );
-void _ignore(MovieDetails movie) {}
+void _ignore(int movieId) {}
 Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 60));
 TypeMatcher<SearchState> searching(String query) => isA<SearchState>()
     .having((s) => s.isSearching, 'isSearching', true)
@@ -124,16 +126,19 @@ void main() {
     },
     expect: () => [searching('test'), settled(results: hasLength(1))],
   );
-  test('show details invokes the navigation callback', () async {
-    MovieDetails? navigated;
+  test('show details caches the result and navigates to its id', () async {
+    int? navigated;
+    final cache = MovieCache();
     final cubit = makeCubit(
       api: apiReturning(const [42]),
-      navigation: (movie) => navigated = movie,
+      cache: cache,
+      navigation: (id) => navigated = id,
     );
     cubit.updateSearchQuery('test');
     await settle();
     cubit.showDetails(movieId: 42);
-    expect(navigated?.id, 42);
+    expect(navigated, 42);
+    expect(cache[42], isNotNull);
     await cubit.close();
   });
 }
