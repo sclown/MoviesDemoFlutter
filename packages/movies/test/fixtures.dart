@@ -16,6 +16,14 @@ MoviesListState loadedState(int count) => MoviesListState(
   errorMessage: null,
 );
 
+/// A loaded grid with the next page in flight.
+MoviesListState loadingMoreState(int count) => MoviesListState(
+  movies: [for (var id = 1; id <= count; id++) movieCard(id: id)],
+  isLoading: false,
+  isLoadingMore: true,
+  errorMessage: null,
+);
+
 MoviesListState errorState() => const MoviesListState(
   movies: [],
   isLoading: false,

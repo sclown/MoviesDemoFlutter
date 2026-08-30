@@ -80,6 +80,19 @@ void main() {
     verify(() => cubit.showDetails(movieId: 2)).called(1);
   });
 
+  testWidgets('the whole row is tappable, not just its text', (tester) async {
+    final cubit = searchCubitMock(resultsState(3));
+    await tester.pumpWidget(harnessSearchOverlay(cubit));
+    await tester.pump();
+
+    // The padding at the right edge of the second row: inside the row, but
+    // over none of its children.
+    final rect = tester.getRect(find.byType(SearchResultRow).at(1));
+    await tester.tapAt(Offset(rect.right - 8, rect.center.dy));
+
+    verify(() => cubit.showDetails(movieId: 2)).called(1);
+  });
+
   testWidgets('the clear button empties the field', (tester) async {
     final cubit = searchCubitMock(resultsState(3));
     await tester.pumpWidget(harnessSearchOverlay(cubit));

@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../l10n/generated/movies_localizations.dart';
 import 'error_view.dart';
 import 'loading_view.dart';
+import 'delayed_progress_indicator.dart';
 import 'movie_cell.dart';
 import 'movies_list_state.dart';
 import 'movies_cubit.dart';
@@ -66,30 +67,48 @@ class _MoviesViewState extends State<MoviesView> {
   }
 
   Widget _movieGrid(MoviesListState state) {
-    return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 72),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 2 / 3,
-      ),
-      itemCount: state.movies.length,
-      itemBuilder: (context, index) {
-        final movie = state.movies[index];
-        // Building the last cell is the "user reached the bottom" signal.
-        // The request waits for the frame to end: publishing new state from
-        // inside a build is not allowed.
-        if (index == state.movies.length - 1) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) widget.cubit.loadMoreIfNeeded(currentMovieId: movie.id);
-          });
-        }
-        return GestureDetector(
-          onTap: () => widget.cubit.showDetails(movieId: movie.id),
-          child: MovieCell(movie: movie),
-        );
-      },
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+          sliver: SliverGrid.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 2 / 3,
+            ),
+            itemCount: state.movies.length,
+            itemBuilder: (context, index) {
+              final movie = state.movies[index];
+              // Building the last cell is the "user reached the bottom"
+              // signal. The request waits for the frame to end: publishing new
+              // state from inside a build is not allowed.
+              if (index == state.movies.length - 1) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    widget.cubit.loadMoreIfNeeded(currentMovieId: movie.id);
+                  }
+                });
+              }
+              return GestureDetector(
+                onTap: () => widget.cubit.showDetails(movieId: movie.id),
+                child: MovieCell(movie: movie),
+              );
+            },
+          ),
+        ),
+        // Keeps the last row clear of the search bar, and holds the
+        // next-page spinner when one is warranted.
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: 72,
+            child: state.isLoadingMore
+                ? const DelayedProgressIndicator()
+                : null,
+          ),
+        ),
+      ],
     );
   }
 }

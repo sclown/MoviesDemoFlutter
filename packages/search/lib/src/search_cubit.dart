@@ -29,11 +29,20 @@ class SearchCubit extends Cubit<SearchState> {
   final Duration _debounce;
 
   List<Movie> _searchResults = [];
-  _Cancellation? _searchToken;
+
+  /// Cancelled and restarted on every keystroke, so only the pause at the end
+  /// of typing ever spends a request.
+  Timer? _debounceTimer;
+
+  // Dart futures cannot be cancelled, so each request takes a ticket on the
+  // way out and drops its result if a newer one has been issued since.
+  var _searchTicket = 0;
+  var _closed = false;
 
   @override
   Future<void> close() {
-    _searchToken?.cancel();
+    _closed = true;
+    _debounceTimer?.cancel();
     return super.close();
   }
 
@@ -47,7 +56,8 @@ class SearchCubit extends Cubit<SearchState> {
   }
 
   void _debounceSearch(String query) {
-    _searchToken?.cancel();
+    _debounceTimer?.cancel();
+    _searchTicket++;
 
     if (query.isEmpty) {
       _searchResults = [];
@@ -70,29 +80,21 @@ class SearchCubit extends Cubit<SearchState> {
       ),
     );
 
-    final token = _Cancellation();
-    _searchToken = token;
-    _performSearch(query: query, token: token);
+    final ticket = _searchTicket;
+    _debounceTimer = Timer(_debounce, () => _performSearch(query, ticket));
   }
 
-  Future<void> _performSearch({
-    required String query,
-    required _Cancellation token,
-  }) async {
+  Future<void> _performSearch(String query, int ticket) async {
     String? errorMessage;
     try {
-      // Keystrokes land faster than requests should: wait out the typing
-      // before spending a request, and drop the result if a newer query won.
-      await Future<void>.delayed(_debounce);
-      if (token.isCancelled) return;
       final response = await _service.searchMovies(query: query);
-      if (token.isCancelled) return;
+      if (_superseded(ticket)) return;
       _searchResults = response.results;
       // The details screen reads from the cache, so results have to land there
       // before a tap can open one.
       _cache.putAll([for (final movie in _searchResults) movie.details()]);
     } catch (error) {
-      if (token.isCancelled) return;
+      if (_superseded(ticket)) return;
       _searchResults = [];
       errorMessage = describeError(error);
     }
@@ -112,13 +114,10 @@ class SearchCubit extends Cubit<SearchState> {
     );
   }
 
+  /// True when a newer query has been issued, or the cubit is closed and
+  /// emitting would throw.
+  bool _superseded(int ticket) => _closed || ticket != _searchTicket;
+
   static void _noNavigation(int movieId) {}
 }
 
-/// Marks a superseded search so it drops its result — see the note in
-/// `MoviesCubit`.
-final class _Cancellation {
-  bool isCancelled = false;
-
-  void cancel() => isCancelled = true;
-}

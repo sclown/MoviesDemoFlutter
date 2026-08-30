@@ -145,6 +145,9 @@ class _SearchOverlayState extends State<SearchOverlay> {
         itemBuilder: (context, index) {
           final movie = state.searchResults[index];
           return GestureDetector(
+            // The row is padding around a poster and two lines of text, so
+            // without this only those children would answer a tap.
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               widget.cubit.showDetails(movieId: movie.id);
               _focusNode.unfocus();

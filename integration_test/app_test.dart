@@ -40,10 +40,11 @@ void main() {
   // test, which then starts on whatever screen the last one left behind.
   tearDown(GetIt.instance.reset);
 
-  /// The first poster in the grid.
+  /// The first poster in the grid. The grid is a `CustomScrollView` so that
+  /// the next-page spinner can sit in a footer sliver beneath it.
   final firstCell = find
       .descendant(
-        of: find.byType(GridView),
+        of: find.byType(CustomScrollView),
         matching: find.byType(GestureDetector),
       )
       .first;
@@ -52,7 +53,7 @@ void main() {
     await tester.pumpWidget(const app.MoviesDemoApp());
 
     await waitFor(tester, find.byType(MoviesView));
-    await waitFor(tester, find.byType(GridView));
+    await waitFor(tester, find.byType(CustomScrollView));
   });
 
   testWidgets('the search field exists', (tester) async {
@@ -63,7 +64,7 @@ void main() {
 
   testWidgets('tapping a movie opens its details', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
-    await waitFor(tester, find.byType(GridView));
+    await waitFor(tester, find.byType(CustomScrollView));
 
     await tester.tap(firstCell);
     await waitFor(tester, find.byType(DetailsView));
@@ -79,12 +80,12 @@ void main() {
 
   testWidgets('navigating back returns to the grid', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
-    await waitFor(tester, find.byType(GridView));
+    await waitFor(tester, find.byType(CustomScrollView));
 
     await tester.tap(firstCell);
     await waitFor(tester, find.byType(DetailsView));
 
     await tester.pageBack();
-    await waitFor(tester, find.byType(GridView));
+    await waitFor(tester, find.byType(CustomScrollView));
   });
 }

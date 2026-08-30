@@ -12,6 +12,15 @@ import 'fixtures.dart';
 import 'test_harness.dart';
 
 void main() {
+  /// The default 800x600 test view is shorter than one grid row, so the
+  /// footer below the grid is never built. These use a phone-sized view.
+  void usePhoneView(WidgetTester tester) {
+    tester.view
+      ..physicalSize = const Size(390, 844)
+      ..devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+  }
+
   testWidgets('shows the loading state', (tester) async {
     await tester.pumpWidget(
       harnessMoviesView(moviesCubitMock(MoviesListState.empty())),
@@ -86,6 +95,30 @@ void main() {
 
     expect(find.byType(LoadingView), findsNothing);
     expect(find.text('Movie title 1'), findsOne);
+  });
+
+  testWidgets('a fast next page never shows a spinner', (tester) async {
+    usePhoneView(tester);
+    await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadingMoreState(3))));
+    await tester.pump(const Duration(milliseconds: 900));
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+  });
+
+  testWidgets('a slow next page shows one after a second', (tester) async {
+    usePhoneView(tester);
+    await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadingMoreState(3))));
+    await tester.pump(const Duration(milliseconds: 1100));
+
+    expect(find.byType(CircularProgressIndicator), findsOne);
+  });
+
+  testWidgets('no spinner when no page is in flight', (tester) async {
+    usePhoneView(tester);
+    await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadedState(3))));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
   testWidgets('translates into German', (tester) async {

@@ -26,15 +26,6 @@ Other things worth keeping:
 
 ---
 
-## Open — bugs
-
-### 1. `isLoadingMore` is tracked but never rendered
-
-Emitted by `MoviesCubit`, asserted in the cubit tests, read by no widget. Either show a footer
-spinner in `MoviesView._movieGrid` or drop the field.
-
----
-
 ## Open — smaller
 
 - `dart:io` in `movie_service.dart` and `network_error.dart` rules out Flutter web. Fine if
@@ -72,6 +63,17 @@ spinner in `MoviesView._movieGrid` or drop the field.
   `packages/movies_api/test/fixtures.dart`. **Trade-off:** those suites no longer exercise URL
   building, HTTP status handling or JSON parsing — that coverage now lives solely in `movies_api`'s
   own tests, and nothing exercises the seam between the two layers end to end.
+- **`_Cancellation` is gone from both cubits.** It was a mutable-bool token modelled on Swift's
+  `Task.isCancelled`. Dart futures still cannot be cancelled, so each request now takes an integer
+  ticket and drops its result when a newer one has been issued — the ordinary Dart idiom, and no
+  shared class to duplicate. `SearchCubit`'s debounce became a real `Timer` that is cancelled and
+  restarted, instead of sleeping through `Future.delayed` and discarding the result: typing six
+  characters no longer leaves five pending delays waking only to throw their work away.
+- **`isLoadingMore` is rendered.** The grid became a `CustomScrollView` with a footer sliver that
+  holds a `DelayedProgressIndicator` while a page is in flight. The spinner appears only after a
+  second, so a fast page never flashes one; the timer is cancelled on dispose, so a finished page
+  removes it and the next one starts the wait again. The footer keeps the 72px the grid padding used
+  to reserve, so the layout — and every golden — is unchanged.
 - **The theme has one definition.** `packages/theme` holds `moviesDemoTheme`; the app and both test
   harnesses import it, so the goldens now assert the theme that ships. Two hand-copied `ThemeData`
   blocks are gone, one of which had already drifted.
@@ -137,6 +139,7 @@ it.
 Well above the quality bar for a demo — the boundaries hold, the tests are real, and the intent is
 documented. Suggested order of work:
 
-1. The `isLoadingMore` field that nothing renders
-2. `_Cancellation`, still duplicated in both cubits
-3. Adding CI — `scripts/test_all.sh` exists, so a workflow calling it is about ten lines
+1. Adding CI — `scripts/test_all.sh` exists, so a workflow calling it is about ten lines
+2. Load-more failures are still swallowed silently, with no way to retry that page
+3. `scripts/test_all.sh` does not cover `integration_test/`, so a refactor can pass everything
+   locally and still break it — as the `GridView` → `CustomScrollView` change did

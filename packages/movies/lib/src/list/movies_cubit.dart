@@ -28,31 +28,27 @@ class MoviesCubit extends Cubit<MoviesListState> {
   int _currentPage = 1;
   int _totalPages = 1;
 
-  _Cancellation? _loadToken;
-  _Cancellation? _loadMoreToken;
+  // Dart futures cannot be cancelled, so each request takes a ticket on the
+  // way out and drops its result if a newer one has been issued since.
+  var _loadTicket = 0;
+  var _loadMoreTicket = 0;
+  var _closed = false;
 
   @override
   Future<void> close() {
-    _loadToken?.cancel();
-    _loadMoreToken?.cancel();
+    _closed = true;
     return super.close();
   }
 
   void load() {
     if (_hasLoaded) return;
-    _loadToken?.cancel();
-    final token = _Cancellation();
-    _loadToken = token;
-    _performLoad(token);
+    _performLoad(++_loadTicket);
   }
 
   void loadMoreIfNeeded({required int currentMovieId}) {
     if (_currentPage >= _totalPages) return;
     if (_movies.isEmpty || currentMovieId != _movies.last.id) return;
-    _loadMoreToken?.cancel();
-    final token = _Cancellation();
-    _loadMoreToken = token;
-    _performLoadMore(token);
+    _performLoadMore(++_loadMoreTicket);
   }
 
   void showDetails({required int movieId}) {
@@ -64,20 +60,20 @@ class MoviesCubit extends Cubit<MoviesListState> {
   void _cacheMovies() =>
       _cache.putAll([for (final movie in _movies) movie.details()]);
 
-  Future<void> _performLoad(_Cancellation token) async {
+  Future<void> _performLoad(int ticket) async {
     emit(state.copyWith(isLoading: true));
     String? errorMessage;
     _currentPage = 1;
 
     try {
       final response = await _service.fetchPopularMovies(page: _currentPage);
-      if (token.isCancelled) return;
+      if (_superseded(ticket, _loadTicket)) return;
       _movies = response.results;
       _totalPages = response.totalPages;
       _hasLoaded = true;
       _cacheMovies();
     } catch (error) {
-      if (token.isCancelled) return;
+      if (_superseded(ticket, _loadTicket)) return;
       _hasLoaded = false;
       errorMessage = describeError(error);
     }
@@ -91,13 +87,13 @@ class MoviesCubit extends Cubit<MoviesListState> {
     );
   }
 
-  Future<void> _performLoadMore(_Cancellation token) async {
+  Future<void> _performLoadMore(int ticket) async {
     emit(state.copyWith(isLoadingMore: true));
 
     try {
       final nextPage = _currentPage + 1;
       final response = await _service.fetchPopularMovies(page: nextPage);
-      if (token.isCancelled) return;
+      if (_superseded(ticket, _loadMoreTicket)) return;
 
       // TMDB pages overlap often enough that de-duplicating matters.
       final existingIds = {for (final movie in _movies) movie.id};
@@ -110,7 +106,7 @@ class MoviesCubit extends Cubit<MoviesListState> {
       _currentPage = nextPage;
       _cacheMovies();
     } catch (_) {
-      if (token.isCancelled) return;
+      if (_superseded(ticket, _loadMoreTicket)) return;
     }
 
     emit(
@@ -121,13 +117,10 @@ class MoviesCubit extends Cubit<MoviesListState> {
     );
   }
 
+  /// True when a newer request has been issued, or the cubit is closed and
+  /// emitting would throw.
+  bool _superseded(int ticket, int latest) => _closed || ticket != latest;
+
   static void _noNavigation(int movieId) {}
 }
 
-/// Dart futures cannot be cancelled, so a superseded load is handed a token
-/// and told to drop its result instead.
-final class _Cancellation {
-  bool isCancelled = false;
-
-  void cancel() => isCancelled = true;
-}
