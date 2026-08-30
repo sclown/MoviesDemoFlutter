@@ -41,7 +41,10 @@ class ErrorView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            TextButton(onPressed: onRetry, child: Text(l10n.retry)),
+            Semantics(
+              identifier: 'retryButton',
+              child: TextButton(onPressed: onRetry, child: Text(l10n.retry)),
+            ),
           ],
         ),
       ),

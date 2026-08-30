@@ -11,9 +11,6 @@ import 'package:search/search.dart';
 
 import 'navigation.dart';
 
-/// Composes the whole graph, bottom up. The app is the only place that knows
-/// every module exists — the features only know the abstractions in
-/// `movies_data`.
 void registerModules({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
 
@@ -33,8 +30,6 @@ void registerModules({GetIt? container}) {
   registerSearch(container: getIt);
 }
 
-/// The language TMDB should answer in: the same locale `MaterialApp` resolves
-/// the UI to, so titles and overviews match the chrome around them.
 String currentLanguageTag() {
   final resolved = basicLocaleListResolution(
     WidgetsBinding.instance.platformDispatcher.locales,

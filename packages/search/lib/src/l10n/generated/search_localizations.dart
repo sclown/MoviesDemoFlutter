@@ -133,6 +133,12 @@ abstract class SearchLocalizations {
   /// In en, this message translates to:
   /// **'Search failed'**
   String get searchFailed;
+
+  /// Accessibility label for the dimmed area that closes the search when tapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss search'**
+  String get dismissSearch;
 }
 
 class _SearchLocalizationsDelegate

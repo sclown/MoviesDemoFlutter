@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'empty_search_results_view.dart';
+import 'l10n/generated/search_localizations.dart';
 import 'search_bar.dart';
 import 'search_error_view.dart';
 import 'search_result_row.dart';
@@ -101,11 +102,15 @@ class _SearchOverlayState extends State<SearchOverlay> {
   }
 
   Widget _dimming(SearchState state) {
-    return GestureDetector(
-      onTap: _focusNode.unfocus,
-      child: ColoredBox(
-        color: Colors.black.withValues(
-          alpha: state.searchResults.isEmpty ? 0.8 : 1,
+    return Semantics(
+      button: true,
+      label: SearchLocalizations.of(context).dismissSearch,
+      child: GestureDetector(
+        onTap: _focusNode.unfocus,
+        child: ColoredBox(
+          color: Colors.black.withValues(
+            alpha: state.searchResults.isEmpty ? 0.8 : 1,
+          ),
         ),
       ),
     );
@@ -144,15 +149,21 @@ class _SearchOverlayState extends State<SearchOverlay> {
         itemCount: state.searchResults.length,
         itemBuilder: (context, index) {
           final movie = state.searchResults[index];
-          return GestureDetector(
-            // The row is padding around a poster and two lines of text, so
-            // without this only those children would answer a tap.
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              widget.cubit.showDetails(movieId: movie.id);
-              _focusNode.unfocus();
-            },
-            child: SearchResultRow(movie: movie),
+          return MergeSemantics(
+            child: Semantics(
+              button: true,
+              identifier: 'searchResult-${movie.id}',
+              child: GestureDetector(
+                // The row is padding around a poster and two lines of text,
+                // so without this only those children would answer a tap.
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  widget.cubit.showDetails(movieId: movie.id);
+                  _focusNode.unfocus();
+                },
+                child: SearchResultRow(movie: movie),
+              ),
+            ),
           );
         },
       ),

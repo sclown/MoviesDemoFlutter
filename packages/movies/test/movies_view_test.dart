@@ -32,6 +32,7 @@ void main() {
   });
 
   testWidgets('shows the error state and retries', (tester) async {
+    final handle = tester.ensureSemantics();
     final cubit = moviesCubitMock(errorState());
     await tester.pumpWidget(harnessMoviesView(cubit));
 
@@ -39,10 +40,11 @@ void main() {
     expect(find.text('Error'), findsOne);
     expect(find.text('Some error message'), findsOne);
 
-    await tester.tap(find.text('Retry'));
+    await tester.tap(find.bySemanticsIdentifier('retryButton'));
 
     // Once from initState, once from the button.
     verify(() => cubit.load()).called(2);
+    handle.dispose();
   });
 
   testWidgets('shows a grid of movies', (tester) async {
@@ -55,12 +57,14 @@ void main() {
   });
 
   testWidgets('tapping a poster opens its details', (tester) async {
+    final handle = tester.ensureSemantics();
     final cubit = moviesCubitMock(loadedState(3));
     await tester.pumpWidget(harnessMoviesView(cubit));
 
-    await tester.tap(find.text('Movie title 2'));
+    await tester.tap(find.bySemanticsIdentifier('movieCell-2'));
 
     verify(() => cubit.showDetails(movieId: 2)).called(1);
+    handle.dispose();
   });
 
   testWidgets('asks for the next page once the last cell is built', (

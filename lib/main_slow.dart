@@ -34,8 +34,6 @@ final class SlowNetworkClient implements NetworkClient {
 }
 
 void main() {
-  // Registered before the modules are composed, so `registerNetworkService`
-  // leaves the real client out — the same seam the tests use.
   GetIt.instance.registerSingleton<NetworkClient>(
     SlowNetworkClient(HttpNetworkClient()),
   );

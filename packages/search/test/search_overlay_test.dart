@@ -71,13 +71,15 @@ void main() {
   });
 
   testWidgets('tapping a result opens its details', (tester) async {
+    final handle = tester.ensureSemantics();
     final cubit = searchCubitMock(resultsState(3));
     await tester.pumpWidget(harnessSearchOverlay(cubit));
     await tester.pump();
 
-    await tester.tap(find.text('Test movie 2'));
+    await tester.tap(find.bySemanticsIdentifier('searchResult-2'));
 
     verify(() => cubit.showDetails(movieId: 2)).called(1);
+    handle.dispose();
   });
 
   testWidgets('the whole row is tappable, not just its text', (tester) async {
@@ -94,6 +96,7 @@ void main() {
   });
 
   testWidgets('the clear button empties the field', (tester) async {
+    final handle = tester.ensureSemantics();
     final cubit = searchCubitMock(resultsState(3));
     await tester.pumpWidget(harnessSearchOverlay(cubit));
     await tester.pump();
@@ -101,26 +104,29 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Batman');
     await tester.pump();
 
-    await tester.tap(find.byIcon(Icons.cancel));
+    await tester.tap(find.bySemanticsIdentifier('clearSearchButton'));
     await tester.pump();
 
     verify(() => cubit.updateSearchQuery('')).called(greaterThan(0));
     expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '');
+    handle.dispose();
   });
 
   testWidgets('the clear button only appears once there is text', (
     tester,
   ) async {
+    final handle = tester.ensureSemantics();
     await tester.pumpWidget(
       harnessSearchOverlay(searchCubitMock(SearchState.empty())),
     );
 
-    expect(find.byIcon(Icons.cancel), findsNothing);
+    expect(find.bySemanticsIdentifier('clearSearchButton'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'B');
     await tester.pump();
 
-    expect(find.byIcon(Icons.cancel), findsOne);
+    expect(find.bySemanticsIdentifier('clearSearchButton'), findsOne);
+    handle.dispose();
   });
 
   testWidgets('labels the field and the clear button for assistive tech', (

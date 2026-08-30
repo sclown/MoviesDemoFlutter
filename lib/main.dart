@@ -26,7 +26,6 @@ class MoviesDemoApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       title: 'Movies',
       debugShowCheckedModeBanner: false,
-      // Dark only — there is no light variant.
       theme: moviesDemoTheme,
       localizationsDelegates: const [
         MoviesLocalizations.delegate,
@@ -36,8 +35,6 @@ class MoviesDemoApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: MoviesLocalizations.supportedLocales,
-      // The app is the composition root: it is the only place that reads from
-      // the container, and hands what it finds to the widgets.
       home: MoviesView(
         cubit: GetIt.instance<MoviesCubit>(),
         overlay: SearchOverlay(cubit: GetIt.instance<SearchCubit>()),
@@ -45,4 +42,3 @@ class MoviesDemoApp extends StatelessWidget {
     );
   }
 }
-

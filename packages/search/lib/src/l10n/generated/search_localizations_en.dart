@@ -27,4 +27,7 @@ class SearchLocalizationsEn extends SearchLocalizations {
 
   @override
   String get searchFailed => 'Search failed';
+
+  @override
+  String get dismissSearch => 'Dismiss search';
 }

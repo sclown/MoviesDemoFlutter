@@ -29,5 +29,9 @@
   "searchFailed": "Search failed",
   "@searchFailed": {
     "description": "Title shown when a search request fails."
+  },
+  "dismissSearch": "Dismiss search",
+  "@dismissSearch": {
+    "description": "Accessibility label for the dimmed area that closes the search when tapped."
   }
 }

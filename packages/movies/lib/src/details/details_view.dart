@@ -24,8 +24,13 @@ class DetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final movie = cache[movieId];
-    if (movie == null) return const _UnavailableView();
-    return _DetailsContent(movie: movie);
+    return Semantics(
+      identifier: 'detailsScreen',
+      explicitChildNodes: true,
+      child: movie == null
+          ? const _UnavailableView()
+          : _DetailsContent(movie: movie),
+    );
   }
 }
 

@@ -30,6 +30,9 @@ class MovieSearchBar extends StatelessWidget {
     return Semantics(
       textField: true,
       label: l10n.searchMovies,
+      // Without this the field and the clear button are merged into this one
+      // node, and their identifiers resolve to the whole bar.
+      explicitChildNodes: true,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(999),
         child: BackdropFilter(
@@ -64,9 +67,11 @@ class MovieSearchBar extends StatelessWidget {
                         hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: hintColor,
                         ),
+                        // 14 rather than 10: it puts the field at 48dp, the
+                        // larger of the Android and iOS minimum tap targets.
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 8,
-                          vertical: 10,
+                          vertical: 14,
                         ),
                       ),
                     ),
@@ -82,7 +87,8 @@ class MovieSearchBar extends StatelessWidget {
                             onPressed: onClear,
                             iconSize: 18,
                             color: Colors.white,
-                            visualDensity: VisualDensity.compact,
+                            // No compact density: it shrinks the button to
+                            // 40x40, under the 44pt/48dp tap-target minimums.
                             icon: Icon(
                               Icons.cancel,
                               semanticLabel: l10n.clearSearch,

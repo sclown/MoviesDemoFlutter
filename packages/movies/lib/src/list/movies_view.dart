@@ -67,8 +67,11 @@ class _MoviesViewState extends State<MoviesView> {
   }
 
   Widget _movieGrid(MoviesListState state) {
-    return CustomScrollView(
-      slivers: [
+    return Semantics(
+      identifier: 'moviesGrid',
+      explicitChildNodes: true,
+      child: CustomScrollView(
+        slivers: [
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
           sliver: SliverGrid.builder(
@@ -91,24 +94,32 @@ class _MoviesViewState extends State<MoviesView> {
                   }
                 });
               }
-              return GestureDetector(
-                onTap: () => widget.cubit.showDetails(movieId: movie.id),
-                child: MovieCell(movie: movie),
+              return Semantics(
+                button: true,
+                label: movie.title,
+                identifier: 'movieCell-${movie.id}',
+                // The cell's own image label would otherwise repeat the title.
+                excludeSemantics: true,
+                child: GestureDetector(
+                  onTap: () => widget.cubit.showDetails(movieId: movie.id),
+                  child: MovieCell(movie: movie),
+                ),
               );
             },
           ),
         ),
-        // Keeps the last row clear of the search bar, and holds the
-        // next-page spinner when one is warranted.
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: 72,
-            child: state.isLoadingMore
-                ? const DelayedProgressIndicator()
-                : null,
+          // Keeps the last row clear of the search bar, and holds the
+          // next-page spinner when one is warranted.
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 72,
+              child: state.isLoadingMore
+                  ? const DelayedProgressIndicator()
+                  : null,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

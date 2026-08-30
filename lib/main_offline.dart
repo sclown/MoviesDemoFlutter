@@ -34,11 +34,7 @@ final class OfflineNetworkClient implements NetworkClient {
 }
 
 void main() {
-  // Registered before the modules are composed, so `registerNetworkService`
-  // leaves the real client out — the same seam the tests use.
-  GetIt.instance.registerSingleton<NetworkClient>(
-    const OfflineNetworkClient(),
-  );
+  GetIt.instance.registerSingleton<NetworkClient>(const OfflineNetworkClient());
   registerModules();
   runApp(const MoviesDemoApp());
 }

@@ -4,17 +4,17 @@
 //
 //    flutter test integration_test --dart-define-from-file=.env.local
 //
-//  Everything here is matched by widget type, never by on-screen text: the app
-//  is localized, so text assertions would fail on a device that is not set to
-//  English. The translations are asserted in the widget tests, which pin the
-//  locale themselves.
+//  Everything here is matched by accessibility identifier, never by on-screen
+//  text or widget type. Text would fail on a device that is not set to English;
+//  types couple the test to the widget tree, which has already broken once when
+//  the grid changed from `GridView` to `CustomScrollView`. The translations are
+//  asserted in the widget tests, which pin the locale themselves.
 //
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flutter/semantics.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:movies/movies.dart';
 import 'package:movies_demo_flutter/main.dart' as app;
 import 'package:movies_demo_flutter/modules.dart';
 
@@ -36,56 +36,56 @@ void main() {
   }
 
   setUp(registerModules);
+
+  // `find.bySemanticsIdentifier` needs the semantics tree, which a device only
+  // builds when an assistive technology asks for it.
+  late SemanticsHandle semantics;
+  setUp(() => semantics = SemanticsBinding.instance.ensureSemantics());
+  tearDown(() => semantics.dispose());
   // Without this the cubits, the cache and the navigator survive into the next
   // test, which then starts on whatever screen the last one left behind.
   tearDown(GetIt.instance.reset);
 
-  /// The first poster in the grid. The grid is a `CustomScrollView` so that
-  /// the next-page spinner can sit in a footer sliver beneath it.
-  final firstCell = find
-      .descendant(
-        of: find.byType(CustomScrollView),
-        matching: find.byType(GestureDetector),
-      )
-      .first;
+  /// The first poster in the grid, by the identifier the cell carries.
+  final firstCell = find.bySemanticsIdentifier(RegExp(r'^movieCell-')).first;
 
   testWidgets('the movies grid appears on launch', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
 
-    await waitFor(tester, find.byType(MoviesView));
-    await waitFor(tester, find.byType(CustomScrollView));
+    await waitFor(tester, find.bySemanticsIdentifier('moviesGrid'));
+    await waitFor(tester, firstCell);
   });
 
   testWidgets('the search field exists', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
 
-    await waitFor(tester, find.byType(TextField));
+    await waitFor(tester, find.bySemanticsIdentifier('searchField'));
   });
 
   testWidgets('tapping a movie opens its details', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
-    await waitFor(tester, find.byType(CustomScrollView));
+    await waitFor(tester, find.bySemanticsIdentifier('moviesGrid'));
 
     await tester.tap(firstCell);
-    await waitFor(tester, find.byType(DetailsView));
+    await waitFor(tester, find.bySemanticsIdentifier('detailsScreen'));
   });
 
   testWidgets('search shows results', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
-    await waitFor(tester, find.byType(TextField));
+    await waitFor(tester, find.bySemanticsIdentifier('searchField'));
 
-    await tester.enterText(find.byType(TextField), 'Batman');
-    await waitFor(tester, find.byType(ListView));
+    await tester.enterText(find.bySemanticsIdentifier('searchField'), 'Batman');
+    await waitFor(tester, find.bySemanticsIdentifier('searchResults'));
   });
 
   testWidgets('navigating back returns to the grid', (tester) async {
     await tester.pumpWidget(const app.MoviesDemoApp());
-    await waitFor(tester, find.byType(CustomScrollView));
+    await waitFor(tester, find.bySemanticsIdentifier('moviesGrid'));
 
     await tester.tap(firstCell);
-    await waitFor(tester, find.byType(DetailsView));
+    await waitFor(tester, find.bySemanticsIdentifier('detailsScreen'));
 
     await tester.pageBack();
-    await waitFor(tester, find.byType(CustomScrollView));
+    await waitFor(tester, find.bySemanticsIdentifier('moviesGrid'));
   });
 }

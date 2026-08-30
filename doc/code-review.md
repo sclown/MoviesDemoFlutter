@@ -63,6 +63,18 @@ Other things worth keeping:
   `packages/movies_api/test/fixtures.dart`. **Trade-off:** those suites no longer exercise URL
   building, HTTP status handling or JSON parsing — that coverage now lives solely in `movies_api`'s
   own tests, and nothing exercises the seam between the two layers end to end.
+- **Accessibility: two real defects fixed, and the guidelines are now asserted.** Flutter's
+  `androidTapTargetGuideline`, `iOSTapTargetGuideline`, `textContrastGuideline` and
+  `labeledTapTargetGuideline` run against every screen in `packages/*/test/accessibility_test.dart`.
+  Fixing what they caught: the search field was 40pt tall (under both the 44pt iOS and 48dp Android
+  minimums) and the clear button was shrunk to 40x40 by `VisualDensity.compact`; the full-screen
+  dimming layer was a tappable node with nothing to announce, and now carries a localized
+  "Dismiss search" label. Grid cells and search rows also announce as buttons, which no guideline
+  checks but every screen reader needs.
+- **The integration tests match on accessibility identifiers.** `moviesGrid`, `detailsScreen`,
+  `searchField`, `searchResults`, `movieCell-<id>`, `searchResult-<id>`. They previously matched on
+  widget type, which broke when the grid became a `CustomScrollView`, and before that on English
+  text, which broke on a German device. Identifiers are immune to both.
 - **`_Cancellation` is gone from both cubits.** It was a mutable-bool token modelled on Swift's
   `Task.isCancelled`. Dart futures still cannot be cancelled, so each request now takes an integer
   ticket and drops its result when a newer one has been issued — the ordinary Dart idiom, and no
@@ -143,3 +155,5 @@ documented. Suggested order of work:
 2. Load-more failures are still swallowed silently, with no way to retry that page
 3. `scripts/test_all.sh` does not cover `integration_test/`, so a refactor can pass everything
    locally and still break it — as the `GridView` → `CustomScrollView` change did
+4. `MoviesView`'s loading and error states have no `liveRegion`, so a screen reader is not told when
+   the grid finishes loading or fails
