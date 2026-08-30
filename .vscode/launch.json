@@ -6,7 +6,10 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
-      "toolArgs": ["--dart-define-from-file", ".env.local"]
+      "toolArgs": [
+        "--dart-define-from-file",
+        ".env.local"
+      ]
     },
     {
       "name": "MoviesDemoFlutter (profile)",
@@ -14,7 +17,26 @@
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "profile",
-      "toolArgs": ["--dart-define-from-file", ".env.local"]
+      "toolArgs": [
+        "--dart-define-from-file",
+        ".env.local"
+      ]
+    },
+    {
+      "name": "MoviesDemoFlutter (slow network)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_slow.dart",
+      "toolArgs": [
+        "--dart-define-from-file",
+        ".env.local"
+      ]
+    },
+    {
+      "name": "MoviesDemoFlutter (offline)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_offline.dart"
     }
   ]
 }

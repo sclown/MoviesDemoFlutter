@@ -62,6 +62,30 @@ returns an authentication error, which surfaces as the error state with a
 > A key handed to the app this way is baked into the binary and can be read back
 > out of it. It keeps the key out of version control, not out of the shipped app.
 
+## Alternative entry points
+
+`lib/main.dart` is the app. `lib/main_slow.dart` builds the same app over a
+network client that adds a second to every request, which is the only
+comfortable way to look at the states that are otherwise too quick to catch —
+the initial spinner, the next-page spinner in the grid footer, and the search
+debounce:
+
+```bash
+flutter run -t lib/main_slow.dart --dart-define-from-file=.env.local
+```
+
+`lib/main_offline.dart` fails every request instead, which is how you reach the
+error states — the grid's Retry button, and the search overlay's error view.
+It needs no key, since nothing leaves the process:
+
+```bash
+flutter run -t lib/main_offline.dart
+```
+
+Both work by registering their own `NetworkClient` before `registerModules()`,
+which leaves the real one out — the same seam the tests use. VS Code has
+matching *(slow network)* and *(offline)* launch configurations.
+
 ## Architecture
 
 A [pub workspace](https://dart.dev/tools/pub/workspaces) of Dart packages, so a
