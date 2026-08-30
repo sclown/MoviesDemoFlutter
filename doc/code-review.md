@@ -1,7 +1,7 @@
 # Code Review — MoviesDemoFlutter
 
 **Reviewed:** 2026-08-28 · **Updated:** 2026-08-29
-**Scope:** whole codebase (app + all seven workspace packages)
+**Scope:** whole codebase (app + all six workspace packages)
 **Verification:** `flutter analyze` → *No issues found*. `./scripts/test_all.sh` → all 88 automated
 tests pass across 6 suites. `flutter test integration_test` → 5/5 on an iPhone 16 Pro simulator
 against the live TMDB API. `flutter build apk --debug|--release` and `build appbundle` all succeed.
@@ -21,7 +21,7 @@ Other things worth keeping:
 - The pub-workspace setup with `resolution: workspace` — the current-correct approach.
 - `strict-casts` / `strict-raw-types` plus `prefer_relative_imports`: a stronger lint set than most
   projects run.
-- `movies_api` and `network_service` are pure Dart, so they run without the Flutter test harness.
+- `movies_data` and `network_service` are pure Dart, so they run without the Flutter test harness.
 - Test coverage is unusually thorough — unit, widget, golden, app-level.
 
 ---
@@ -34,36 +34,6 @@ Emitted by `MoviesCubit`, asserted in the cubit tests, read by no widget. Either
 spinner in `MoviesView._movieGrid` or drop the field.
 
 ---
-
-## Open — design
-
-### `movies_core` depends on `movies_api`
-
-`packages/movies_core/pubspec.yaml:15`. The domain layer depends on the DTO layer, and `MovieTools`
-is an extension on the wire type `Movie`. The usual shape is `movies_api` mapping DTOs *into* core
-models, with core depending on nothing.
-
-### The theme is copy-pasted three times
-
-`lib/main.dart:43` plus `packages/{movies,search}/test/test_harness.dart`, and the search copy has
-already drifted (no `appBarTheme`). **The goldens are therefore asserting a theme that isn't the
-shipped one.** A feature package can't import the app, so the theme belongs in `movies_core` (or a
-`design_system` package) with `main.dart` and both harnesses importing it.
-
-### Service locator reached from widget state
-
-`movies_view.dart:29`, `search_overlay.dart:25`, `main_navigation_view.dart:22` all call
-`GetIt.instance<T>()` directly. Testable via pre-registration, but every widget is coupled to a
-global and tests become order-dependent. Passing the cubit in as a constructor argument (with the
-module still doing the wiring) removes the coupling without changing the architecture.
-
----
-
-### `MovieCache` grows without bound
-
-`packages/movies_core/lib/src/movie_cache.dart` keeps every movie the grid or a search ever returned,
-with no eviction and no staleness check. Harmless at demo scale; a TTL or an LRU bound is the fix if
-the catalogue or the session gets long.
 
 ## Open — smaller
 
@@ -102,6 +72,17 @@ the catalogue or the session gets long.
   `packages/movies_api/test/fixtures.dart`. **Trade-off:** those suites no longer exercise URL
   building, HTTP status handling or JSON parsing — that coverage now lives solely in `movies_api`'s
   own tests, and nothing exercises the seam between the two layers end to end.
+- **The theme has one definition.** `packages/theme` holds `moviesDemoTheme`; the app and both test
+  harnesses import it, so the goldens now assert the theme that ships. Two hand-copied `ThemeData`
+  blocks are gone, one of which had already drifted.
+- **`movies_core` and `movies_api` merged into `movies_data`.** The domain layer depended on the DTO
+  layer, and 8 of the 12 files that used either used both — the split was not enforcing a boundary.
+  `movies_api_mocks` and `movies_core_mocks` merged the same way into `movies_data_mocks`.
+- **Widgets take their dependencies through the constructor.** `MoviesView`, `SearchOverlay` and
+  `DetailsView` no longer call `GetIt.instance<T>()`; they receive a cubit or a `MovieCache`. Only
+  `lib/` reads the container now. The test harnesses stopped registering singletons as a side effect
+  of building a widget, which also removed the ordering hazard where calling one twice in a test
+  threw — five `tearDown(GetIt.instance.reset)` calls became unnecessary and were deleted.
 - **Search failures are reported as failures.** `SearchState` gained an `errorMessage`, `SearchCubit`
   sets it from `describeError`, and `SearchOverlay` renders a new `SearchErrorView` instead of the
   empty-results label. `showEmptyLabel` is now only set when the search actually succeeded, so a
@@ -156,6 +137,6 @@ it.
 Well above the quality bar for a demo — the boundaries hold, the tests are real, and the intent is
 documented. Suggested order of work:
 
-1. The triplicated theme — it quietly undermines what the golden tests are supposed to prove
-2. `movies_core` depending on `movies_api`
-3. The `isLoadingMore` field that nothing renders
+1. The `isLoadingMore` field that nothing renders
+2. `_Cancellation`, still duplicated in both cubits
+3. Adding CI — `scripts/test_all.sh` exists, so a workflow calling it is about ten lines

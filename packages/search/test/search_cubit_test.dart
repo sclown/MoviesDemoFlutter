@@ -1,8 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:movies_api_mocks/movies_api_mocks.dart';
+import 'package:movies_data_mocks/movies_data_mocks.dart';
 import 'package:network_service/network_service.dart';
 import 'package:search/src/search_cubit.dart';
 import 'package:search/src/search_state.dart';

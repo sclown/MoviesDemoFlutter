@@ -4,7 +4,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../l10n/generated/movies_localizations.dart';
 import 'error_view.dart';
@@ -17,8 +16,9 @@ import 'movies_cubit.dart';
 /// scrolled. [overlay] lets the composing module stack the search UI on top
 /// without this module knowing about it.
 class MoviesView extends StatefulWidget {
-  const MoviesView({this.overlay, super.key});
+  const MoviesView({required this.cubit, this.overlay, super.key});
 
+  final MoviesCubit cubit;
   final Widget? overlay;
 
   @override
@@ -26,12 +26,11 @@ class MoviesView extends StatefulWidget {
 }
 
 class _MoviesViewState extends State<MoviesView> {
-  late final MoviesCubit _cubit = GetIt.instance<MoviesCubit>();
 
   @override
   void initState() {
     super.initState();
-    _cubit.load();
+    widget.cubit.load();
   }
 
   @override
@@ -45,7 +44,7 @@ class _MoviesViewState extends State<MoviesView> {
         children: [
           Positioned.fill(
             child: BlocBuilder<MoviesCubit, MoviesListState>(
-              bloc: _cubit,
+              bloc: widget.cubit,
               builder: (context, state) => _content(state),
             ),
           ),
@@ -60,7 +59,7 @@ class _MoviesViewState extends State<MoviesView> {
 
     final errorMessage = state.errorMessage;
     if (errorMessage != null) {
-      return ErrorView(message: errorMessage, onRetry: _cubit.load);
+      return ErrorView(message: errorMessage, onRetry: widget.cubit.load);
     }
 
     return _movieGrid(state);
@@ -83,11 +82,11 @@ class _MoviesViewState extends State<MoviesView> {
         // inside a build is not allowed.
         if (index == state.movies.length - 1) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) _cubit.loadMoreIfNeeded(currentMovieId: movie.id);
+            if (mounted) widget.cubit.loadMoreIfNeeded(currentMovieId: movie.id);
           });
         }
         return GestureDetector(
-          onTap: () => _cubit.showDetails(movieId: movie.id),
+          onTap: () => widget.cubit.showDetails(movieId: movie.id),
           child: MovieCell(movie: movie),
         );
       },

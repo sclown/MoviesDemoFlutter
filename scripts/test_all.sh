@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 echo "==> analyze"
 flutter analyze
 
-for package in packages/network_service packages/movies_api packages/movies_core; do
+for package in packages/network_service packages/movies_data; do
   echo "==> $package (dart)"
   (cd "$package" && dart test "$@")
 done

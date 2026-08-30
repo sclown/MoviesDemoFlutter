@@ -1,5 +1,5 @@
-name: movies_api_mocks
-description: A MovieServicing mock and MovieResponse fixtures for the tests.
+name: movies_data_mocks
+description: A MovieServicing mock and the values it returns, for the tests.
 version: 1.0.0
 publish_to: 'none'
 
@@ -10,8 +10,8 @@ resolution: workspace
 
 dependencies:
   mocktail: ^1.0.5
-  movies_api:
-    path: ../movies_api
+  movies_data:
+    path: ../movies_data
 
 dev_dependencies:
   lints: ^5.0.0

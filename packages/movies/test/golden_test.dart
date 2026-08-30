@@ -8,10 +8,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
-import 'package:movies/src/list/movies_list_state.dart';
-import 'package:movies_core_mocks/movies_core_mocks.dart';
+import 'package:movies_data_mocks/movies_data_mocks.dart';
 
 import 'fixtures.dart';
 import 'test_harness.dart';
@@ -19,8 +17,6 @@ import 'test_harness.dart';
 const _iPhoneSize = Size(390, 844);
 
 void main() {
-  tearDown(GetIt.instance.reset);
-
   setUp(() {
     // Off-screen images would otherwise resolve over the network.
     imageCache.clear();

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:movies/src/list/error_view.dart';
 import 'package:movies/src/list/loading_view.dart';
@@ -13,8 +12,6 @@ import 'fixtures.dart';
 import 'test_harness.dart';
 
 void main() {
-  tearDown(GetIt.instance.reset);
-
   testWidgets('shows the loading state', (tester) async {
     await tester.pumpWidget(
       harnessMoviesView(moviesCubitMock(MoviesListState.empty())),

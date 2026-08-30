@@ -2,7 +2,7 @@
 //  fixtures.dart — placeholder values the service can return
 //
 
-import 'package:movies_api/movies_api.dart';
+import 'package:movies_data/movies_data.dart';
 
 Movie movie({required int id, String? title, String? posterPath}) => Movie(
   id: id,

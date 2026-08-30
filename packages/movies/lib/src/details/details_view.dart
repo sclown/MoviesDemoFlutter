@@ -4,8 +4,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 
 import '../l10n/generated/movies_localizations.dart';
 
@@ -13,13 +12,18 @@ import '../l10n/generated/movies_localizations.dart';
 /// the list and search screens, so an id that was never listed — a link opened
 /// from cold, say — falls through to the unavailable state.
 class DetailsView extends StatelessWidget {
-  const DetailsView({required this.movieId, super.key});
+  const DetailsView({
+    required this.movieId,
+    required this.cache,
+    super.key,
+  });
 
   final int movieId;
+  final MovieCache cache;
 
   @override
   Widget build(BuildContext context) {
-    final movie = GetIt.instance<MovieCache>()[movieId];
+    final movie = cache[movieId];
     if (movie == null) return const _UnavailableView();
     return _DetailsContent(movie: movie);
   }

@@ -3,9 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:movies/src/list/movies_cubit.dart';
 import 'package:movies/src/list/movies_list_state.dart';
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_api_mocks/movies_api_mocks.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
+import 'package:movies_data_mocks/movies_data_mocks.dart';
 import 'package:network_service/network_service.dart';
 
 /// Answers `fetchPopularMovies` with [pages] in order, repeating the last one.

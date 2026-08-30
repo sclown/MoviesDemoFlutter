@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:movies_api/movies_api.dart';
+import 'package:movies_data/movies_data.dart';
 import 'package:network_service/network_service.dart';
 import 'package:test/test.dart';
 

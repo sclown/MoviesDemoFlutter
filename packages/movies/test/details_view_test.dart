@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
-import 'package:movies_core/movies_core.dart';
-import 'package:movies_core_mocks/movies_core_mocks.dart';
+import 'package:movies_data/movies_data.dart';
+import 'package:movies_data_mocks/movies_data_mocks.dart';
 
 import 'test_harness.dart';
 
 void main() {
-  tearDown(GetIt.instance.reset);
-
   testWidgets('shows the title, rating, release date and overview', (
     tester,
   ) async {

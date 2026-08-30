@@ -5,8 +5,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:movies/movies.dart';
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 import 'package:network_service/network_service.dart';
 import 'package:search/search.dart';
 
@@ -14,7 +13,7 @@ import 'navigation.dart';
 
 /// Composes the whole graph, bottom up. The app is the only place that knows
 /// every module exists — the features only know the abstractions in
-/// `movies_core`.
+/// `movies_data`.
 void registerModules({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
 
@@ -25,7 +24,9 @@ void registerModules({GetIt? container}) {
     getIt.registerLazySingleton<MovieCache>(MovieCache.new);
   }
   if (!getIt.isRegistered<MovieNavigator>()) {
-    getIt.registerLazySingleton<MovieNavigator>(AppNavigator.new);
+    getIt.registerLazySingleton<MovieNavigator>(
+      () => AppNavigator(getIt<MovieCache>()),
+    );
   }
 
   registerMovies(container: getIt);

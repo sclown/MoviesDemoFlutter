@@ -2,8 +2,7 @@
 //  movie_card.dart
 //
 
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 
 /// What a grid cell needs, and nothing more.
 final class MovieCard {

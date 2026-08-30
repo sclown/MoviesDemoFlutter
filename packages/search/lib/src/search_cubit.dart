@@ -5,8 +5,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 
 import 'search_card.dart';
 import 'search_state.dart';

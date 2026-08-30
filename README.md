@@ -70,23 +70,22 @@ module can only reach what it declares in its `pubspec.yaml`.
 | Package | Responsibility |
 |---|---|
 | `packages/network_service` | `NetworkClient` seam over `package:http`, plus the domain-level `NetworkError`s. |
-| `packages/movies_api` | TMDB DTOs, JSON parsing, `MovieService`. |
-| `packages/movies_core` | `MovieDetails`, `MovieCache`, the `MovieNavigator` seam, poster and rating helpers. Depends on no packages. |
+| `packages/movies_data` | TMDB DTOs and parsing, `MovieService`, and the domain types the features share — `MovieDetails`, `MovieCache`, the `MovieNavigator` seam. |
+| `packages/theme` | The app's `ThemeData`. One definition, used by the app and the golden tests. |
 | `packages/movies` | The popular-movies grid and the details screen. |
 | `packages/search` | The search overlay. |
-| `packages/movies_api_mocks` | A `MovieServicing` mock and the `MovieResponse` values it returns. |
-| `packages/movies_core_mocks` | Placeholder domain values. |
+| `packages/movies_data_mocks` | A `MovieServicing` mock and the values it returns. |
 | `lib/` | The route table, the dependency graph, the theme and the entry point. |
 
 The feature modules never import one another. `movies` and `search` depend on
-the `MovieNavigator` interface in `movies_core`; `lib/` is the only place that
+the `MovieNavigator` interface in `movies_data`; `lib/` is the only place that
 knows every module exists.
 
-The two `…_mocks` packages are `dev_dependencies` only, so nothing in them
-reaches a shipped binary. Neither is reachable from the packages it mocks, so
-there is no dependency cycle. `movies_api`'s own JSON fixtures and fake client
-are local to `packages/movies_api/test/fixtures.dart`, since nothing outside
-that package needs them.
+`movies_data_mocks` is a `dev_dependency` only, so nothing in it reaches a
+shipped binary, and `movies_data` cannot reach it, so there is no dependency
+cycle. `movies_data`'s own JSON fixtures and fake client are local to
+`packages/movies_data/test/fixtures.dart`, since nothing outside that package
+needs them.
 
 - **State management** — each feature owns a
   [`Cubit`](https://pub.dev/packages/flutter_bloc) publishing one immutable
@@ -94,7 +93,10 @@ that package needs them.
   implement `==`, so re-emitting an unchanged state is not a rebuild.
 - **Dependency injection** — [`get_it`](https://pub.dev/packages/get_it). Each
   module exposes a `register…()` that skips anything already registered, so
-  tests and the golden harness substitute a mock simply by registering first.
+  tests substitute a mock simply by registering first. Only `lib/` reads from
+  the container: the widgets take their cubit or cache through the
+  constructor, so a widget test constructs one directly and never touches
+  `get_it`.
 - **Navigation** — Flutter's own `Navigator`, driven from `lib/navigation.dart`
   through a `GlobalKey<NavigatorState>` so a cubit can push without a
   `BuildContext`. Features push a movie *id* through the `MovieNavigator`

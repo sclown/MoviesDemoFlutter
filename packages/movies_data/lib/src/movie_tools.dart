@@ -2,7 +2,7 @@
 //  movie_tools.dart
 //
 
-import 'package:movies_api/movies_api.dart';
+import 'dtos/movie.dart';
 
 import 'movie_details.dart';
 

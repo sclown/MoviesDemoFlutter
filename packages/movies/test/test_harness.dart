@@ -5,11 +5,9 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get_it/get_it.dart';
+import 'package:theme/theme.dart';
 import 'package:movies/movies.dart';
-import 'package:movies/src/list/movies_cubit.dart';
-import 'package:movies/src/list/movies_list_state.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 
 /// Emits the states a test hands it and records the calls the view makes.
 class MoviesCubitMock extends MockCubit<MoviesListState>
@@ -35,41 +33,28 @@ Widget harnessMoviesView(
   MoviesCubitMock cubit, {
   Widget? overlay,
   Locale? locale,
-}) {
-  GetIt.instance.registerSingleton<MoviesCubit>(cubit);
-  return harnessApp(MoviesView(overlay: overlay), locale: locale);
-}
+}) => harnessApp(
+  MoviesView(cubit: cubit, overlay: overlay),
+  locale: locale,
+);
 
 /// Seeds the cache with [movie] and renders its details screen.
-Widget harnessDetailsView(MovieDetails movie, {Locale? locale}) {
-  GetIt.instance.registerSingleton<MovieCache>(MovieCache()..put(movie));
-  return harnessApp(DetailsView(movieId: movie.id), locale: locale);
-}
+Widget harnessDetailsView(MovieDetails movie, {Locale? locale}) => harnessApp(
+  DetailsView(movieId: movie.id, cache: MovieCache()..put(movie)),
+  locale: locale,
+);
 
 /// The details screen for an id the cache never saw.
-Widget harnessMissingDetailsView({Locale? locale}) {
-  GetIt.instance.registerSingleton<MovieCache>(MovieCache());
-  return harnessApp(const DetailsView(movieId: 999), locale: locale);
-}
+Widget harnessMissingDetailsView({Locale? locale}) => harnessApp(
+  DetailsView(movieId: 999, cache: MovieCache()),
+  locale: locale,
+);
 
 Widget harnessApp(Widget child, {Locale? locale}) {
   return MaterialApp(
     debugShowCheckedModeBanner: false,
     locale: locale,
-    theme: ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blueAccent,
-        brightness: Brightness.dark,
-      ),
-      scaffoldBackgroundColor: Colors.black,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.black,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-      ),
-    ),
+    theme: moviesDemoTheme,
     localizationsDelegates: const [
       MoviesLocalizations.delegate,
       GlobalMaterialLocalizations.delegate,

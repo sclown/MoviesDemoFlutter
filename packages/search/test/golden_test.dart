@@ -6,9 +6,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:search/search.dart';
-import 'package:search/src/search_state.dart';
 
 import 'fixtures.dart';
 import 'test_harness.dart';
@@ -16,8 +14,6 @@ import 'test_harness.dart';
 const _iPhoneSize = Size(390, 844);
 
 void main() {
-  tearDown(GetIt.instance.reset);
-
   Future<void> pumpOverlay(WidgetTester tester, SearchState state) async {
     tester.view
       ..physicalSize = _iPhoneSize

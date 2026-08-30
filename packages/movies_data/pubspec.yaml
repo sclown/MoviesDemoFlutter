@@ -1,5 +1,5 @@
-name: movies_api
-description: TMDB DTOs, JSON parsing and the movie service.
+name: movies_data
+description: TMDB DTOs and parsing, the movie service, and the domain types the features share.
 version: 1.0.0
 publish_to: 'none'
 

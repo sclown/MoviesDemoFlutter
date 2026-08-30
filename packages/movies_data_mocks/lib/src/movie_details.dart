@@ -2,7 +2,7 @@
 //  movie_details.dart — a placeholder movie for the tests
 //
 
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 
 MovieDetails movieDetails({int id = 1}) => MovieDetails(
   id: id,

@@ -8,11 +8,10 @@ environment:
 
 # The modules of the app.
 workspace:
+  - packages/theme
   - packages/network_service
-  - packages/movies_api
-  - packages/movies_core
-  - packages/movies_api_mocks
-  - packages/movies_core_mocks
+  - packages/movies_data
+  - packages/movies_data_mocks
   - packages/movies
   - packages/search
 
@@ -25,12 +24,12 @@ dependencies:
   get_it: ^8.0.3
   movies:
     path: packages/movies
-  movies_api:
-    path: packages/movies_api
-  movies_core:
-    path: packages/movies_core
+  movies_data:
+    path: packages/movies_data
   network_service:
     path: packages/network_service
+  theme:
+    path: packages/theme
   search:
     path: packages/search
 
@@ -41,8 +40,8 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   mocktail: ^1.0.5
-  movies_api_mocks:
-    path: packages/movies_api_mocks
+  movies_data_mocks:
+    path: packages/movies_data_mocks
 
 flutter:
   uses-material-design: true

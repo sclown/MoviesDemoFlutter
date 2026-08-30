@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:test/test.dart';
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 
 Movie makeMovie({String? posterPath = '/abc.jpg', double vote = 7.45}) {
   final posterField = posterPath == null ? 'null' : '"$posterPath"';

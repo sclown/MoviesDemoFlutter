@@ -3,9 +3,11 @@
 //
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:movies/movies.dart';
 import 'package:search/search.dart';
+import 'package:theme/theme.dart';
 
 import 'modules.dart';
 import 'navigation.dart';
@@ -34,23 +36,13 @@ class MoviesDemoApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: MoviesLocalizations.supportedLocales,
-      home: const MoviesView(overlay: SearchOverlay()),
+      // The app is the composition root: it is the only place that reads from
+      // the container, and hands what it finds to the widgets.
+      home: MoviesView(
+        cubit: GetIt.instance<MoviesCubit>(),
+        overlay: SearchOverlay(cubit: GetIt.instance<SearchCubit>()),
+      ),
     );
   }
 }
 
-/// Shared by the app and the golden tests, so what is asserted is what ships.
-final ThemeData moviesDemoTheme = ThemeData(
-  useMaterial3: true,
-  brightness: Brightness.dark,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.blueAccent,
-    brightness: Brightness.dark,
-  ),
-  scaffoldBackgroundColor: Colors.black,
-  appBarTheme: const AppBarTheme(
-    backgroundColor: Colors.black,
-    surfaceTintColor: Colors.transparent,
-    elevation: 0,
-  ),
-);

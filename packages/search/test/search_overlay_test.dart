@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:search/src/empty_search_results_view.dart';
 import 'package:search/src/search_error_view.dart';
@@ -11,8 +10,6 @@ import 'fixtures.dart';
 import 'test_harness.dart';
 
 void main() {
-  tearDown(GetIt.instance.reset);
-
   testWidgets('starts as just a search field', (tester) async {
     await tester.pumpWidget(
       harnessSearchOverlay(searchCubitMock(SearchState.empty())),

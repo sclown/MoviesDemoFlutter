@@ -4,8 +4,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 import 'package:movies_demo_flutter/modules.dart';
 import 'package:movies_demo_flutter/navigation.dart';
 import 'package:network_service/network_service.dart';

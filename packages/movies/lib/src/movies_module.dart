@@ -3,8 +3,7 @@
 //
 
 import 'package:get_it/get_it.dart';
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_core/movies_core.dart';
+import 'package:movies_data/movies_data.dart';
 
 import 'list/movies_cubit.dart';
 

@@ -9,9 +9,8 @@ import 'package:movies/movies.dart';
 import 'package:movies_demo_flutter/main.dart';
 import 'package:movies_demo_flutter/modules.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:movies_api/movies_api.dart';
-import 'package:movies_core/movies_core.dart';
-import 'package:movies_api_mocks/movies_api_mocks.dart';
+import 'package:movies_data/movies_data.dart';
+import 'package:movies_data_mocks/movies_data_mocks.dart';
 
 void main() {
   // `pumpAndSettle` is avoided throughout: the poster placeholders spin for as
