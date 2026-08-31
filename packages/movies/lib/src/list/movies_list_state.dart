@@ -14,7 +14,6 @@ final class MoviesListState {
     required this.errorMessage,
   });
 
-  /// The initial state: loading, with nothing to show yet.
   factory MoviesListState.empty() => const MoviesListState(
     movies: [],
     isLoading: true,
@@ -27,8 +26,6 @@ final class MoviesListState {
   final bool isLoadingMore;
   final String? errorMessage;
 
-  /// [errorMessage] is cleared unless a new one is passed — a fresh load or
-  /// page always supersedes the previous failure.
   MoviesListState copyWith({
     List<MovieCard>? movies,
     bool? isLoading,
@@ -50,6 +47,10 @@ final class MoviesListState {
       other.errorMessage == errorMessage;
 
   @override
-  int get hashCode =>
-      Object.hash(Object.hashAll(movies), isLoading, isLoadingMore, errorMessage);
+  int get hashCode => Object.hash(
+    Object.hashAll(movies),
+    isLoading,
+    isLoadingMore,
+    errorMessage,
+  );
 }

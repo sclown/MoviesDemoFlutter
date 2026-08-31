@@ -42,7 +42,9 @@ void main() {
   });
 
   testWidgets('shows the error state when the search failed', (tester) async {
-    await tester.pumpWidget(harnessSearchOverlay(searchCubitMock(failedState())));
+    await tester.pumpWidget(
+      harnessSearchOverlay(searchCubitMock(failedState())),
+    );
     await tester.pump();
 
     expect(find.byType(SearchErrorView), findsOne);
@@ -87,8 +89,6 @@ void main() {
     await tester.pumpWidget(harnessSearchOverlay(cubit));
     await tester.pump();
 
-    // The padding at the right edge of the second row: inside the row, but
-    // over none of its children.
     final rect = tester.getRect(find.byType(SearchResultRow).at(1));
     await tester.tapAt(Offset(rect.right - 8, rect.center.dy));
 
@@ -108,7 +108,10 @@ void main() {
     await tester.pump();
 
     verify(() => cubit.updateSearchQuery('')).called(greaterThan(0));
-    expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, '');
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      '',
+    );
     handle.dispose();
   });
 

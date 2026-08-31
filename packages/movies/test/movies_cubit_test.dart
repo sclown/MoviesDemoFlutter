@@ -7,11 +7,12 @@ import 'package:movies_data/movies_data.dart';
 import 'package:movies_data_mocks/movies_data_mocks.dart';
 import 'package:network_service/network_service.dart';
 
-/// Answers `fetchPopularMovies` with [pages] in order, repeating the last one.
 MoviesApiMock apiReturning(List<MovieResponse> pages) {
   final api = MoviesApiMock();
   var call = 0;
-  when(() => api.fetchPopularMovies(page: any(named: 'page'))).thenAnswer((_) async {
+  when(() => api.fetchPopularMovies(page: any(named: 'page'))).thenAnswer((
+    _,
+  ) async {
     final page = pages[call < pages.length ? call : pages.length - 1];
     call++;
     return page;
@@ -37,18 +38,13 @@ MoviesCubit makeCubit(
 
 void _ignore(int movieId) {}
 
-/// Lets an in-flight request settle before the next call.
 Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 10));
 
-/// The in-flight state. `emit` only skips a duplicate after the first one has
-/// gone out, so the opening `isLoading: true` is emitted even though it equals
-/// the initial state.
 TypeMatcher<MoviesListState> loading({Object? errorMessage}) =>
     isA<MoviesListState>()
         .having((s) => s.isLoading, 'isLoading', true)
         .having((s) => s.errorMessage, 'errorMessage', errorMessage ?? isNull);
 
-/// A finished state: not loading, no error unless one is expected.
 TypeMatcher<MoviesListState> loaded({
   Object? movies,
   Object? isLoadingMore,
@@ -64,7 +60,11 @@ void main() {
 
   blocTest<MoviesCubit, MoviesListState>(
     'load emits the movies',
-    build: () => makeCubit(apiReturning([movieResponse(ids: [1, 2])])),
+    build: () => makeCubit(
+      apiReturning([
+        movieResponse(ids: [1, 2]),
+      ]),
+    ),
     act: (cubit) => cubit.load(),
     expect: () => [loading(), loaded(movies: hasLength(2))],
   );
@@ -79,7 +79,9 @@ void main() {
   blocTest<MoviesCubit, MoviesListState>(
     'load asks the service only once',
     build: () {
-      api = apiReturning([movieResponse(ids: [1, 2])]);
+      api = apiReturning([
+        movieResponse(ids: [1, 2]),
+      ]);
       return makeCubit(api);
     },
     act: (cubit) async {
@@ -96,7 +98,9 @@ void main() {
   test('load can be retried after a failure', () async {
     final api = MoviesApiMock();
     var attempt = 0;
-    when(() => api.fetchPopularMovies(page: any(named: 'page'))).thenAnswer((_) async {
+    when(() => api.fetchPopularMovies(page: any(named: 'page'))).thenAnswer((
+      _,
+    ) async {
       if (attempt++ == 0) throw const NetworkError.noConnection();
       return movieResponse(ids: [1, 2]);
     });
@@ -131,8 +135,11 @@ void main() {
     expect: () => [
       loading(),
       loaded(movies: hasLength(2)),
-      isA<MoviesListState>()
-          .having((s) => s.isLoadingMore, 'isLoadingMore', true),
+      isA<MoviesListState>().having(
+        (s) => s.isLoadingMore,
+        'isLoadingMore',
+        true,
+      ),
       loaded(movies: hasLength(4)),
     ],
   );
@@ -158,8 +165,11 @@ void main() {
 
   blocTest<MoviesCubit, MoviesListState>(
     'load more ignores a cell that is not the last one',
-    build: () =>
-        makeCubit(apiReturning([movieResponse(ids: [1, 2], totalPages: 3)])),
+    build: () => makeCubit(
+      apiReturning([
+        movieResponse(ids: [1, 2], totalPages: 3),
+      ]),
+    ),
     act: (cubit) async {
       cubit.load();
       await settle();
@@ -171,8 +181,11 @@ void main() {
 
   blocTest<MoviesCubit, MoviesListState>(
     'load more stops at the last page',
-    build: () =>
-        makeCubit(apiReturning([movieResponse(ids: [1, 2])])),
+    build: () => makeCubit(
+      apiReturning([
+        movieResponse(ids: [1, 2]),
+      ]),
+    ),
     act: (cubit) async {
       cubit.load();
       await settle();
@@ -186,7 +199,9 @@ void main() {
     int? navigated;
     final cache = MovieCache();
     final cubit = makeCubit(
-      apiReturning([movieResponse(ids: [1])]),
+      apiReturning([
+        movieResponse(ids: [1]),
+      ]),
       cache: cache,
       navigation: (id) => navigated = id,
     );
@@ -205,7 +220,9 @@ void main() {
   test('show details ignores an unknown id', () async {
     int? navigated;
     final cubit = makeCubit(
-      apiReturning([movieResponse(ids: [1, 2])]),
+      apiReturning([
+        movieResponse(ids: [1, 2]),
+      ]),
       navigation: (id) => navigated = id,
     );
 

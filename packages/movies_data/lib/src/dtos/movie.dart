@@ -2,7 +2,6 @@
 //  movie.dart
 //
 
-/// One page of TMDB results.
 final class MovieResponse {
   const MovieResponse({required this.results, required this.totalPages});
 
@@ -27,8 +26,6 @@ final class Movie {
     required this.voteAverage,
   });
 
-  /// Decodes TMDB's snake_case payload. A missing or mistyped required field
-  /// throws a [FormatException]; the optional fields default to null.
   factory Movie.fromJson(Map<String, dynamic> json) => Movie(
     id: _require<int>(json, 'id'),
     title: _require<String>(json, 'title'),

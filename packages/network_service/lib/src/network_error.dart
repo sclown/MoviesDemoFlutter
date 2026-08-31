@@ -7,7 +7,6 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
-/// Domain-level network failures, mirroring the errors surfaced to the user.
 sealed class NetworkError implements Exception {
   const NetworkError();
 
@@ -18,8 +17,6 @@ sealed class NetworkError implements Exception {
 
   String get errorDescription;
 
-  /// Maps a transport-level failure onto a domain error, or returns `null` when
-  /// the failure has no domain equivalent and should be propagated as-is.
   static NetworkError? fromTransportError(Object error) => switch (error) {
     SocketException() => const NetworkError.noConnection(),
     TimeoutException() => const NetworkError.timeout(),
@@ -96,8 +93,7 @@ final class HttpError extends NetworkError {
   final int statusCode;
 
   @override
-  String get errorDescription =>
-      'Server returned an error (HTTP $statusCode).';
+  String get errorDescription => 'Server returned an error (HTTP $statusCode).';
 
   @override
   bool operator ==(Object other) =>

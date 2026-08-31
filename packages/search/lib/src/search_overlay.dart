@@ -13,8 +13,6 @@ import 'search_result_row.dart';
 import 'search_state.dart';
 import 'search_cubit.dart';
 
-/// Sits on top of whatever screen hosts it: a bottom search field that dims
-/// the content behind it and reveals live results while it is active.
 class SearchOverlay extends StatefulWidget {
   const SearchOverlay({required this.cubit, super.key});
 
@@ -59,9 +57,6 @@ class _SearchOverlayState extends State<SearchOverlay> {
       builder: (context, state) {
         final isActive = _focusNode.hasFocus || state.searchQuery.isNotEmpty;
 
-        // Both slots are always present and keyed: if the children shifted as
-        // the overlay activated, the field's element would be rebuilt and the
-        // keyboard connection lost mid-typing.
         return Stack(
           children: [
             Positioned.fill(
@@ -73,8 +68,6 @@ class _SearchOverlayState extends State<SearchOverlay> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Always present, so the field below keeps its identity when
-                  // the overlay becomes active and does not lose focus.
                   Expanded(
                     child: isActive
                         ? _searchResults(state)
@@ -154,8 +147,6 @@ class _SearchOverlayState extends State<SearchOverlay> {
               button: true,
               identifier: 'searchResult-${movie.id}',
               child: GestureDetector(
-                // The row is padding around a poster and two lines of text,
-                // so without this only those children would answer a tap.
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
                   widget.cubit.showDetails(movieId: movie.id);

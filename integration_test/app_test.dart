@@ -37,13 +37,9 @@ void main() {
 
   setUp(registerModules);
 
-  // `find.bySemanticsIdentifier` needs the semantics tree, which a device only
-  // builds when an assistive technology asks for it.
   late SemanticsHandle semantics;
   setUp(() => semantics = SemanticsBinding.instance.ensureSemantics());
   tearDown(() => semantics.dispose());
-  // Without this the cubits, the cache and the navigator survive into the next
-  // test, which then starts on whatever screen the last one left behind.
   tearDown(GetIt.instance.reset);
 
   /// The first poster in the grid, by the identifier the cell carries.

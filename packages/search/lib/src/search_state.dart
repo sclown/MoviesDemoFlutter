@@ -27,12 +27,8 @@ final class SearchState {
   final String searchQuery;
   final bool showEmptyLabel;
 
-  /// Set when the search itself failed. Distinct from [showEmptyLabel], which
-  /// means the search succeeded and found nothing.
   final String? errorMessage;
 
-  /// [errorMessage] is cleared unless a new one is passed — a fresh query
-  /// always supersedes the previous failure.
   SearchState copyWith({
     List<SearchCard>? searchResults,
     bool? isSearching,
@@ -57,6 +53,11 @@ final class SearchState {
       other.errorMessage == errorMessage;
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(searchResults), isSearching,
-      searchQuery, showEmptyLabel, errorMessage);
+  int get hashCode => Object.hash(
+    Object.hashAll(searchResults),
+    isSearching,
+    searchQuery,
+    showEmptyLabel,
+    errorMessage,
+  );
 }

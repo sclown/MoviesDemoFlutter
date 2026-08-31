@@ -18,7 +18,6 @@ const _iPhoneSize = Size(390, 844);
 
 void main() {
   setUp(() {
-    // Off-screen images would otherwise resolve over the network.
     imageCache.clear();
   });
 
@@ -28,7 +27,6 @@ void main() {
       ..devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(widget);
-    // A fixed pump, not pumpAndSettle: the progress spinners never settle.
     await tester.pump(const Duration(milliseconds: 100));
   }
 
@@ -45,10 +43,7 @@ void main() {
   });
 
   testWidgets('movies-error', (tester) async {
-    await pumpSized(
-      tester,
-      harnessMoviesView(moviesCubitMock(errorState())),
-    );
+    await pumpSized(tester, harnessMoviesView(moviesCubitMock(errorState())));
 
     await expectLater(
       find.byType(MoviesView),
@@ -57,10 +52,7 @@ void main() {
   });
 
   testWidgets('movies-3', (tester) async {
-    await pumpSized(
-      tester,
-      harnessMoviesView(moviesCubitMock(loadedState(3))),
-    );
+    await pumpSized(tester, harnessMoviesView(moviesCubitMock(loadedState(3))));
 
     await expectLater(
       find.byType(MoviesView),
@@ -69,10 +61,7 @@ void main() {
   });
 
   testWidgets('movies-8', (tester) async {
-    await pumpSized(
-      tester,
-      harnessMoviesView(moviesCubitMock(loadedState(8))),
-    );
+    await pumpSized(tester, harnessMoviesView(moviesCubitMock(loadedState(8))));
 
     await expectLater(
       find.byType(MoviesView),

@@ -12,16 +12,9 @@ import 'movie_parser.dart';
 
 abstract interface class MovieServicing {
   Future<MovieResponse> fetchPopularMovies({required int page});
-
   Future<MovieResponse> searchMovies({required String query, int page = 1});
 }
 
-/// Registers the service as a singleton. Depends on [NetworkClient] already
-/// being registered, so call [registerNetworkService] first.
-///
-/// [language] is read on every request, so it follows a locale that changes
-/// while the app is running. The app supplies it; this package has no way to
-/// know which locales the UI was built for.
 void registerMoviesApi({GetIt? container, String Function()? language}) {
   final getIt = container ?? GetIt.instance;
   if (!getIt.isRegistered<MovieServicing>()) {
@@ -51,14 +44,10 @@ final class MovieService implements MovieServicing {
   final MovieParser _parser;
   final String _apiKey;
 
-  /// Which language TMDB should return titles and overviews in.
   final String Function() _language;
 
   static String _defaultLanguage() => 'en-US';
 
-  /// Prefers a key baked in with `--dart-define=TMDB_API_KEY=…`, and falls back
-  /// to the process environment so `dart test` and `flutter run` pick up an
-  /// exported shell variable.
   static String resolveApiKey() {
     const compiled = String.fromEnvironment('TMDB_API_KEY');
     if (compiled.isNotEmpty) return compiled;

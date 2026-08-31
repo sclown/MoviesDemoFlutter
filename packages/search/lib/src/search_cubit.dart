@@ -30,12 +30,8 @@ class SearchCubit extends Cubit<SearchState> {
 
   List<Movie> _searchResults = [];
 
-  /// Cancelled and restarted on every keystroke, so only the pause at the end
-  /// of typing ever spends a request.
   Timer? _debounceTimer;
 
-  // Dart futures cannot be cancelled, so each request takes a ticket on the
-  // way out and drops its result if a newer one has been issued since.
   var _searchTicket = 0;
   var _closed = false;
 
@@ -90,8 +86,6 @@ class SearchCubit extends Cubit<SearchState> {
       final response = await _service.searchMovies(query: query);
       if (_superseded(ticket)) return;
       _searchResults = response.results;
-      // The details screen reads from the cache, so results have to land there
-      // before a tap can open one.
       _cache.putAll([for (final movie in _searchResults) movie.details()]);
     } catch (error) {
       if (_superseded(ticket)) return;
@@ -106,7 +100,6 @@ class SearchCubit extends Cubit<SearchState> {
         ],
         isSearching: false,
         searchQuery: query,
-        // "found nothing" only when the search actually succeeded.
         showEmptyLabel:
             errorMessage == null && _searchResults.isEmpty && query.isNotEmpty,
         errorMessage: errorMessage,
@@ -114,10 +107,7 @@ class SearchCubit extends Cubit<SearchState> {
     );
   }
 
-  /// True when a newer query has been issued, or the cubit is closed and
-  /// emitting would throw.
   bool _superseded(int ticket) => _closed || ticket != _searchTicket;
 
   static void _noNavigation(int movieId) {}
 }
-

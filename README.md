@@ -36,13 +36,15 @@ flutter run --dart-define-from-file=.env.local
 `--dart-define-from-file` is built into Flutter — no `dotenv` package involved.
 It reads `.env` (and `.json`) files and exposes each entry to
 `String.fromEnvironment`. The bundled `.vscode/launch.json` already passes the
-flag, so **Run** in VS Code needs nothing extra, and `.vscode/settings.json`
-passes it to test runs too; in Android Studio put
+flag, so **Run** in VS Code needs nothing extra; in Android Studio put
 `--dart-define-from-file=.env.local` under *Additional run args*.
 
-Because of that settings entry, **`.env.local` must exist before running any
-test from VS Code** — the flag is a hard error when the file is missing, even
-for the unit tests that don't need a key.
+The unit tests need no key — they stub the service — so nothing passes the flag
+to them. Only the integration tests need one, and VS Code runs those through the
+*Integration tests* launch configuration. Note the flag cannot be set globally
+via `dart.flutterTestAdditionalArgs`: package tests run with the package as the
+working directory, where `.env.local` does not exist, and a missing file is a
+hard error.
 
 Two alternatives work as well, and take precedence in this order:
 

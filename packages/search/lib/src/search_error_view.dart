@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 
 import 'l10n/generated/search_localizations.dart';
 
-/// Shown when the search request itself failed — as opposed to succeeding and
-/// finding nothing, which is [EmptySearchResultsView].
 class SearchErrorView extends StatelessWidget {
   const SearchErrorView({required this.message, super.key});
 

@@ -3,17 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:movies/src/list/error_view.dart';
-import 'package:movies/src/list/loading_view.dart';
-import 'package:movies/src/list/movie_cell.dart';
 import 'package:movies/src/list/movies_list_state.dart';
 
 import 'fixtures.dart';
 import 'test_harness.dart';
 
 void main() {
-  /// The default 800x600 test view is shorter than one grid row, so the
-  /// footer below the grid is never built. These use a phone-sized view.
   void usePhoneView(WidgetTester tester) {
     tester.view
       ..physicalSize = const Size(390, 844)
@@ -22,13 +17,14 @@ void main() {
   }
 
   testWidgets('shows the loading state', (tester) async {
+    final handle = tester.ensureSemantics();
     await tester.pumpWidget(
       harnessMoviesView(moviesCubitMock(MoviesListState.empty())),
     );
 
-    expect(find.byType(LoadingView), findsOne);
-    expect(find.text('Loading movies…'), findsOne);
-    expect(find.text('Popular Movies'), findsOne);
+    expect(find.bySemanticsIdentifier('loadingView'), findsOne);
+    expect(find.bySemanticsIdentifier('moviesGrid'), findsNothing);
+    handle.dispose();
   });
 
   testWidgets('shows the error state and retries', (tester) async {
@@ -36,8 +32,9 @@ void main() {
     final cubit = moviesCubitMock(errorState());
     await tester.pumpWidget(harnessMoviesView(cubit));
 
-    expect(find.byType(ErrorView), findsOne);
+    expect(find.bySemanticsIdentifier('errorView'), findsOne);
     expect(find.text('Error'), findsOne);
+    // The message is data, not a translation: it has to reach the screen.
     expect(find.text('Some error message'), findsOne);
 
     await tester.tap(find.bySemanticsIdentifier('retryButton'));
@@ -48,12 +45,13 @@ void main() {
   });
 
   testWidgets('shows a grid of movies', (tester) async {
-    await tester.pumpWidget(
-      harnessMoviesView(moviesCubitMock(loadedState(8))),
-    );
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadedState(8))));
 
-    expect(find.byType(MovieCell), findsWidgets);
-    expect(find.text('Movie title 1'), findsOne);
+    expect(find.bySemanticsIdentifier('moviesGrid'), findsOne);
+    expect(find.bySemanticsIdentifier(RegExp(r'^movieCell-')), findsWidgets);
+    expect(find.bySemanticsIdentifier('movieCell-1'), findsOne);
+    handle.dispose();
   });
 
   testWidgets('tapping a poster opens its details', (tester) async {
@@ -85,6 +83,7 @@ void main() {
   });
 
   testWidgets('rebuilds when the state changes', (tester) async {
+    final handle = tester.ensureSemantics();
     final states = StreamController<MoviesListState>();
     addTearDown(states.close);
     final cubit = moviesCubitMock(
@@ -92,37 +91,57 @@ void main() {
       stream: states.stream,
     );
     await tester.pumpWidget(harnessMoviesView(cubit));
-    expect(find.byType(LoadingView), findsOne);
+    expect(find.bySemanticsIdentifier('loadingView'), findsOne);
 
     states.add(loadedState(3));
     await tester.pump();
 
-    expect(find.byType(LoadingView), findsNothing);
-    expect(find.text('Movie title 1'), findsOne);
+    expect(find.bySemanticsIdentifier('loadingView'), findsNothing);
+    expect(find.bySemanticsIdentifier('movieCell-1'), findsOne);
+    handle.dispose();
   });
 
   testWidgets('a fast next page never shows a spinner', (tester) async {
     usePhoneView(tester);
-    await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadingMoreState(3))));
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      harnessMoviesView(moviesCubitMock(loadingMoreState(3))),
+    );
     await tester.pump(const Duration(milliseconds: 900));
 
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.bySemanticsIdentifier('nextPageSpinner'), findsNothing);
+    handle.dispose();
   });
 
   testWidgets('a slow next page shows one after a second', (tester) async {
     usePhoneView(tester);
-    await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadingMoreState(3))));
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      harnessMoviesView(moviesCubitMock(loadingMoreState(3))),
+    );
     await tester.pump(const Duration(milliseconds: 1100));
 
-    expect(find.byType(CircularProgressIndicator), findsOne);
+    expect(find.bySemanticsIdentifier('nextPageSpinner'), findsOne);
+    handle.dispose();
   });
 
   testWidgets('no spinner when no page is in flight', (tester) async {
     usePhoneView(tester);
+    final handle = tester.ensureSemantics();
     await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadedState(3))));
     await tester.pump(const Duration(seconds: 2));
 
-    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.bySemanticsIdentifier('nextPageSpinner'), findsNothing);
+    handle.dispose();
+  });
+
+  testWidgets('shows the English strings', (tester) async {
+    await tester.pumpWidget(
+      harnessMoviesView(moviesCubitMock(MoviesListState.empty())),
+    );
+
+    expect(find.text('Popular Movies'), findsOne);
+    expect(find.text('Loading movies…'), findsOne);
   });
 
   testWidgets('translates into German', (tester) async {

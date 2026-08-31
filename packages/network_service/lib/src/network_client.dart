@@ -9,13 +9,10 @@ import 'package:http/http.dart' as http;
 
 import 'network_error.dart';
 
-/// Loads raw bytes for a URL. The single seam every higher layer mocks.
 abstract interface class NetworkClient {
   Future<Uint8List> data(Uri url);
 }
 
-/// Registers the default client. Call once at start-up; tests override the
-/// registration instead of injecting through constructors.
 void registerNetworkService({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
   if (!getIt.isRegistered<NetworkClient>()) {
@@ -31,8 +28,6 @@ final class HttpNetworkClient implements NetworkClient {
 
   final http.Client _client;
 
-  /// Without this a stalled request hangs until the OS gives up, and
-  /// [NetworkError.timeout] is unreachable.
   final Duration timeout;
 
   @override

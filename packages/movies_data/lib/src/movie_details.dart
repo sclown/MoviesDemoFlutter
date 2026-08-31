@@ -2,8 +2,6 @@
 //  movie_details.dart
 //
 
-/// The presentation model handed to the details screen — and the value pushed
-/// onto the navigation stack.
 final class MovieDetails {
   const MovieDetails({
     required this.id,

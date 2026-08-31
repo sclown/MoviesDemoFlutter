@@ -9,11 +9,9 @@ import 'package:theme/theme.dart';
 import 'package:movies/movies.dart';
 import 'package:movies_data/movies_data.dart';
 
-/// Emits the states a test hands it and records the calls the view makes.
 class MoviesCubitMock extends MockCubit<MoviesListState>
     implements MoviesCubit {}
 
-/// A cubit stuck on [state], or replaying [stream] when one is given.
 MoviesCubitMock moviesCubitMock(
   MoviesListState state, {
   Stream<MoviesListState>? stream,
@@ -27,8 +25,6 @@ MoviesCubitMock moviesCubitMock(
   return cubit;
 }
 
-/// Registers [cubit] and returns a `MoviesView` wrapped in the app's theme
-/// and localizations.
 Widget harnessMoviesView(
   MoviesCubitMock cubit, {
   Widget? overlay,
@@ -38,17 +34,13 @@ Widget harnessMoviesView(
   locale: locale,
 );
 
-/// Seeds the cache with [movie] and renders its details screen.
 Widget harnessDetailsView(MovieDetails movie, {Locale? locale}) => harnessApp(
   DetailsView(movieId: movie.id, cache: MovieCache()..put(movie)),
   locale: locale,
 );
 
-/// The details screen for an id the cache never saw.
-Widget harnessMissingDetailsView({Locale? locale}) => harnessApp(
-  DetailsView(movieId: 999, cache: MovieCache()),
-  locale: locale,
-);
+Widget harnessMissingDetailsView({Locale? locale}) =>
+    harnessApp(DetailsView(movieId: 999, cache: MovieCache()), locale: locale);
 
 Widget harnessApp(Widget child, {Locale? locale}) {
   return MaterialApp(

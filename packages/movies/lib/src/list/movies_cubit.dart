@@ -28,8 +28,6 @@ class MoviesCubit extends Cubit<MoviesListState> {
   int _currentPage = 1;
   int _totalPages = 1;
 
-  // Dart futures cannot be cancelled, so each request takes a ticket on the
-  // way out and drops its result if a newer one has been issued since.
   var _loadTicket = 0;
   var _loadMoreTicket = 0;
   var _closed = false;
@@ -55,8 +53,6 @@ class MoviesCubit extends Cubit<MoviesListState> {
     if (_cache.contains(movieId)) _navigation(movieId);
   }
 
-  /// The details screen reads from the cache, so every movie shown in the grid
-  /// has to be in it before a tap can open one.
   void _cacheMovies() =>
       _cache.putAll([for (final movie in _movies) movie.details()]);
 
@@ -95,7 +91,6 @@ class MoviesCubit extends Cubit<MoviesListState> {
       final response = await _service.fetchPopularMovies(page: nextPage);
       if (_superseded(ticket, _loadMoreTicket)) return;
 
-      // TMDB pages overlap often enough that de-duplicating matters.
       final existingIds = {for (final movie in _movies) movie.id};
       final merged = [..._movies];
       for (final movie in response.results) {
@@ -123,4 +118,3 @@ class MoviesCubit extends Cubit<MoviesListState> {
 
   static void _noNavigation(int movieId) {}
 }
-

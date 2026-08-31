@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 
 import 'movie_card.dart';
 
-/// A poster tile. Until the image arrives — or when there is none — the title
-/// is shown on a placeholder in its place.
 class MovieCell extends StatelessWidget {
   const MovieCell({required this.movie, super.key});
 
@@ -47,9 +45,9 @@ class MovieCell extends StatelessWidget {
         child: Text(
           movie.title,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
     );

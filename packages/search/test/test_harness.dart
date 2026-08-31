@@ -8,10 +8,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:theme/theme.dart';
 import 'package:search/search.dart';
 
-/// Emits the states a test hands it and records the calls the overlay makes.
 class SearchCubitMock extends MockCubit<SearchState> implements SearchCubit {}
 
-/// A cubit stuck on [state], or replaying [stream] when one is given.
 SearchCubitMock searchCubitMock(
   SearchState state, {
   Stream<SearchState>? stream,
@@ -25,7 +23,6 @@ SearchCubitMock searchCubitMock(
   return cubit;
 }
 
-/// The overlay on a black background.
 Widget harnessSearchOverlay(SearchCubitMock cubit, {Locale? locale}) =>
     harnessApp(
       Scaffold(

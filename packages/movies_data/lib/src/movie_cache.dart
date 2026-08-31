@@ -4,11 +4,6 @@
 
 import 'movie_details.dart';
 
-/// Holds the movies the list and search screens have already loaded, so the
-/// details screen can render one by id without asking the network again.
-///
-/// It is filled only by those screens: an id that was never listed is a miss,
-/// and the details screen shows its unavailable state.
 final class MovieCache {
   final _byId = <int, MovieDetails>{};
 

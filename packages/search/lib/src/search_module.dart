@@ -7,8 +7,6 @@ import 'package:movies_data/movies_data.dart';
 
 import 'search_cubit.dart';
 
-/// Wires the module's cubit, leaving an existing registration alone so tests
-/// and goldens can substitute a stub.
 void registerSearch({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
   if (getIt.isRegistered<SearchCubit>()) return;

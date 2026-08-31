@@ -11,14 +11,17 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Semantics(
+      identifier: 'loadingView',
+      child: Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const CircularProgressIndicator(),
           const SizedBox(height: 12),
-          Text(MoviesLocalizations.of(context).loadingMovies),
-        ],
+            Text(MoviesLocalizations.of(context).loadingMovies),
+          ],
+        ),
       ),
     );
   }

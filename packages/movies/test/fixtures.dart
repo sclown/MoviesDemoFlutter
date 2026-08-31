@@ -8,7 +8,6 @@ import 'package:movies/src/list/movies_list_state.dart';
 MovieCard movieCard({required int id}) =>
     MovieCard(id: id, title: 'Movie title $id', poster: null);
 
-/// A grid of [count] placeholder movies.
 MoviesListState loadedState(int count) => MoviesListState(
   movies: [for (var id = 1; id <= count; id++) movieCard(id: id)],
   isLoading: false,
@@ -16,7 +15,6 @@ MoviesListState loadedState(int count) => MoviesListState(
   errorMessage: null,
 );
 
-/// A loaded grid with the next page in flight.
 MoviesListState loadingMoreState(int count) => MoviesListState(
   movies: [for (var id = 1; id <= count; id++) movieCard(id: id)],
   isLoading: false,

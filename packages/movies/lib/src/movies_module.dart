@@ -7,9 +7,6 @@ import 'package:movies_data/movies_data.dart';
 
 import 'list/movies_cubit.dart';
 
-/// Wires the module's cubit. Registration is skipped when something has
-/// already registered a [MoviesCubit] — that is how tests and the golden-test
-/// harness substitute a stub.
 void registerMovies({GetIt? container}) {
   final getIt = container ?? GetIt.instance;
   if (getIt.isRegistered<MoviesCubit>()) return;

@@ -6,10 +6,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// A spinner that only appears once [delay] has passed, so a page that arrives
-/// quickly never flashes one. Mount it while the work is in flight and remove
-/// it when the work finishes: the timer is cancelled on dispose, and a new
-/// mount starts the wait again.
 class DelayedProgressIndicator extends StatefulWidget {
   const DelayedProgressIndicator({
     this.delay = const Duration(seconds: 1),
@@ -43,6 +39,9 @@ class _DelayedProgressIndicatorState extends State<DelayedProgressIndicator> {
 
   @override
   Widget build(BuildContext context) => _visible
-      ? const Center(child: CircularProgressIndicator())
+      ? Semantics(
+          identifier: 'nextPageSpinner',
+          child: Center(child: CircularProgressIndicator()),
+        )
       : const SizedBox.shrink();
 }

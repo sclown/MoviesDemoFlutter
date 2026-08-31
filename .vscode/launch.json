@@ -37,6 +37,16 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_offline.dart"
+    },
+    {
+      "name": "Integration tests",
+      "request": "launch",
+      "type": "dart",
+      "program": "integration_test/app_test.dart",
+      "toolArgs": [
+        "--dart-define-from-file",
+        ".env.local"
+      ]
     }
   ]
 }
