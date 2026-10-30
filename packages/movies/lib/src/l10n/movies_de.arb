@@ -7,5 +7,9 @@
   "rating": "Bewertung",
   "releaseDate": "Erscheinungsdatum: {date}",
   "retry": "Erneut versuchen",
-  "movieUnavailable": "Dieser Film ist nicht mehr verfügbar."
+  "movieUnavailable": "Dieser Film ist nicht mehr verfügbar.",
+  "cast": "Besetzung",
+  "crew": "Stab",
+  "trailers": "Trailer",
+  "playTrailer": "Trailer {name} abspielen"
 }

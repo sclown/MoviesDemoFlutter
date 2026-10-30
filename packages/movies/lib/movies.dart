@@ -4,6 +4,8 @@
 
 library;
 
+export 'src/details/details_cubit.dart';
+export 'src/details/details_state.dart';
 export 'src/details/details_view.dart';
 export 'src/l10n/generated/movies_localizations.dart';
 export 'src/list/movies_cubit.dart';

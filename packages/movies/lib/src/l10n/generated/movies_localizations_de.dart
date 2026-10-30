@@ -33,4 +33,18 @@ class MoviesLocalizationsDe extends MoviesLocalizations {
 
   @override
   String get movieUnavailable => 'Dieser Film ist nicht mehr verfügbar.';
+
+  @override
+  String get cast => 'Besetzung';
+
+  @override
+  String get crew => 'Stab';
+
+  @override
+  String get trailers => 'Trailer';
+
+  @override
+  String playTrailer(String name) {
+    return 'Trailer $name abspielen';
+  }
 }

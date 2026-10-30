@@ -27,6 +27,28 @@ void main() {
     expect(response.results[0].releaseDate, isNull);
   });
 
+  test('parses a movie with credits and videos appended', () {
+    final detail = parser.parseMovieDetail(Json.movieDetail);
+
+    expect(detail.id, 42);
+    expect(detail.genres.map((genre) => genre.name), [
+      'Drama',
+      'Science Fiction',
+    ]);
+    expect(detail.videos, hasLength(3));
+    expect(detail.cast, hasLength(2));
+    expect(detail.crew.single.job, 'Director');
+  });
+
+  test('parses a movie whose appended resources are absent', () {
+    final detail = parser.parseMovieDetail(Json.movieDetailBare);
+
+    expect(detail.genres, isEmpty);
+    expect(detail.videos, isEmpty);
+    expect(detail.cast, isEmpty);
+    expect(detail.crew, isEmpty);
+  });
+
   test('throws on invalid JSON', () {
     final data = Uint8List.fromList(utf8.encode('not json'));
 

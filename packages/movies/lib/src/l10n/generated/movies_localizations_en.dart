@@ -33,4 +33,18 @@ class MoviesLocalizationsEn extends MoviesLocalizations {
 
   @override
   String get movieUnavailable => 'This movie is no longer available.';
+
+  @override
+  String get cast => 'Cast';
+
+  @override
+  String get crew => 'Crew';
+
+  @override
+  String get trailers => 'Trailers';
+
+  @override
+  String playTrailer(String name) {
+    return 'Play trailer $name';
+  }
 }

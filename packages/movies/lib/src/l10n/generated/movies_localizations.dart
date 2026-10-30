@@ -145,6 +145,30 @@ abstract class MoviesLocalizations {
   /// In en, this message translates to:
   /// **'This movie is no longer available.'**
   String get movieUnavailable;
+
+  /// Section heading above the cast row on the details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Cast'**
+  String get cast;
+
+  /// Section heading above the crew row on the details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Crew'**
+  String get crew;
+
+  /// Section heading above the trailer row on the details screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailers'**
+  String get trailers;
+
+  /// Accessibility label for a tappable trailer thumbnail.
+  ///
+  /// In en, this message translates to:
+  /// **'Play trailer {name}'**
+  String playTrailer(String name);
 }
 
 class _MoviesLocalizationsDelegate

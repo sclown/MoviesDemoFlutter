@@ -25,6 +25,22 @@ MoviesCubitMock moviesCubitMock(
   return cubit;
 }
 
+class DetailsCubitMock extends MockCubit<DetailsState>
+    implements DetailsCubit {}
+
+DetailsCubitMock detailsCubitMock(
+  DetailsState state, {
+  Stream<DetailsState>? stream,
+}) {
+  final cubit = DetailsCubitMock();
+  whenListen(
+    cubit,
+    stream ?? const Stream<DetailsState>.empty(),
+    initialState: state,
+  );
+  return cubit;
+}
+
 Widget harnessMoviesView(
   MoviesCubitMock cubit, {
   Widget? overlay,
@@ -34,13 +50,41 @@ Widget harnessMoviesView(
   locale: locale,
 );
 
-Widget harnessDetailsView(MovieDetails movie, {Locale? locale}) => harnessApp(
-  DetailsView(movieId: movie.id, cache: MovieCache()..put(movie)),
+/// The details screen showing [movie]. Whether the extra sections appear is
+/// decided by whether `movie.extras` is filled in.
+Widget harnessDetailsView(
+  MovieDetails movie, {
+  Locale? locale,
+  bool isEnriching = false,
+  void Function(Uri url)? onPlayTrailer,
+}) => harnessDetailsState(
+  DetailsState(movie: movie, isEnriching: isEnriching, errorMessage: null),
+  locale: locale,
+  onPlayTrailer: onPlayTrailer,
+);
+
+Widget harnessDetailsState(
+  DetailsState state, {
+  Locale? locale,
+  Stream<DetailsState>? stream,
+  void Function(Uri url)? onPlayTrailer,
+}) => harnessApp(
+  DetailsView(
+    cubit: detailsCubitMock(state, stream: stream),
+    onPlayTrailer: onPlayTrailer,
+  ),
   locale: locale,
 );
 
-Widget harnessMissingDetailsView({Locale? locale}) =>
-    harnessApp(DetailsView(movieId: 999, cache: MovieCache()), locale: locale);
+/// An id the cache never saw, whose fetch could not find it either.
+Widget harnessMissingDetailsView({Locale? locale}) => harnessDetailsState(
+  const DetailsState(
+    movie: null,
+    isEnriching: false,
+    errorMessage: 'Not found',
+  ),
+  locale: locale,
+);
 
 Widget harnessApp(Widget child, {Locale? locale}) {
   return MaterialApp(

@@ -37,5 +37,27 @@
   "movieUnavailable": "This movie is no longer available.",
   "@movieUnavailable": {
     "description": "Shown when the details screen is opened for a movie that was never listed."
+  },
+  "cast": "Cast",
+  "@cast": {
+    "description": "Section heading above the cast row on the details screen."
+  },
+  "crew": "Crew",
+  "@crew": {
+    "description": "Section heading above the crew row on the details screen."
+  },
+  "trailers": "Trailers",
+  "@trailers": {
+    "description": "Section heading above the trailer row on the details screen."
+  },
+  "playTrailer": "Play trailer {name}",
+  "@playTrailer": {
+    "description": "Accessibility label for a tappable trailer thumbnail.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Official Trailer"
+      }
+    }
   }
 }

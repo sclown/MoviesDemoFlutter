@@ -88,6 +88,88 @@ abstract final class Json {
     return _utf8('{"results": [$movies], "total_pages": $totalPages}');
   }
 
+  /// A `/movie/{id}` payload with `credits` and `videos` appended, as TMDB
+  /// returns them — merged into the movie object, each under its sub-path.
+  static Uint8List get movieDetail => _utf8('''
+    {
+        "id": 42,
+        "title": "Test Movie 42",
+        "overview": "A test movie",
+        "poster_path": "/poster.jpg",
+        "release_date": "2025-01-01",
+        "vote_average": 7.54,
+        "genres": [
+            {"id": 18, "name": "Drama"},
+            {"id": 878, "name": "Science Fiction"}
+        ],
+        "videos": {
+            "results": [
+                {
+                    "key": "clip1",
+                    "name": "A Clip",
+                    "site": "YouTube",
+                    "type": "Clip",
+                    "official": true
+                },
+                {
+                    "key": "vimeo1",
+                    "name": "Elsewhere",
+                    "site": "Vimeo",
+                    "type": "Trailer",
+                    "official": true
+                },
+                {
+                    "key": "tr1",
+                    "name": "Official Trailer",
+                    "site": "YouTube",
+                    "type": "Trailer",
+                    "official": true
+                }
+            ]
+        },
+        "credits": {
+            "cast": [
+                {
+                    "id": 12,
+                    "name": "Alan Turing",
+                    "character": "Cryptanalyst",
+                    "profile_path": null,
+                    "order": 1
+                },
+                {
+                    "id": 11,
+                    "name": "Ada Lovelace",
+                    "character": "Engineer",
+                    "profile_path": "/ada.jpg",
+                    "order": 0
+                }
+            ],
+            "crew": [
+                {
+                    "id": 21,
+                    "name": "Grace Hopper",
+                    "job": "Director",
+                    "department": "Directing",
+                    "profile_path": null
+                }
+            ]
+        }
+    }
+    ''');
+
+  /// The same movie with every appended resource absent — what a locale with
+  /// no assets, or a request without `append_to_response`, comes back as.
+  static Uint8List get movieDetailBare => _utf8('''
+    {
+        "id": 42,
+        "title": "Test Movie 42",
+        "overview": "A test movie",
+        "poster_path": null,
+        "release_date": null,
+        "vote_average": 7.5
+    }
+    ''');
+
   static Uint8List _utf8(String json) =>
       Uint8List.fromList(const Utf8Encoder().convert(json));
 }

@@ -2,6 +2,8 @@
 //  movie.dart
 //
 
+import 'json_field.dart';
+
 final class MovieResponse {
   const MovieResponse({required this.results, required this.totalPages});
 
@@ -27,12 +29,12 @@ final class Movie {
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) => Movie(
-    id: _require<int>(json, 'id'),
-    title: _require<String>(json, 'title'),
-    overview: _require<String>(json, 'overview'),
+    id: requireField<int>(json, 'id'),
+    title: requireField<String>(json, 'title'),
+    overview: requireField<String>(json, 'overview'),
     posterPath: json['poster_path'] as String?,
     releaseDate: json['release_date'] as String?,
-    voteAverage: _require<num>(json, 'vote_average').toDouble(),
+    voteAverage: requireField<num>(json, 'vote_average').toDouble(),
   );
 
   final int id;
@@ -41,14 +43,6 @@ final class Movie {
   final String? posterPath;
   final String? releaseDate;
   final double voteAverage;
-
-  static T _require<T>(Map<String, dynamic> json, String key) {
-    final value = json[key];
-    if (value is! T) {
-      throw FormatException('Missing or invalid "$key" in movie payload', json);
-    }
-    return value;
-  }
 
   @override
   bool operator ==(Object other) =>

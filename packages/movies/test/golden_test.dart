@@ -77,4 +77,16 @@ void main() {
       matchesGoldenFile('goldens/details.png'),
     );
   });
+
+  testWidgets('details-enriched', (tester) async {
+    await pumpSized(
+      tester,
+      harnessDetailsView(movieDetails(extras: movieExtras())),
+    );
+
+    await expectLater(
+      find.byType(DetailsView),
+      matchesGoldenFile('goldens/details_enriched.png'),
+    );
+  });
 }

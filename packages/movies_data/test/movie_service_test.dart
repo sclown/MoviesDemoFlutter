@@ -77,6 +77,69 @@ void main() {
     await service.fetchPopularMovies(page: 1);
     expect(client.lastUrl!.queryParameters['language'], 'en-US');
   });
+
+  test('fetching one movie appends its credits and videos', () async {
+    final client = _RecordingClient(Json.movieDetail);
+    final service = MovieService(networkClient: client, apiKey: 'test-key');
+
+    await service.fetchMovie(id: 42);
+
+    final url = client.lastUrl!;
+    expect(url.path, '/3/movie/42');
+    expect(url.queryParameters['append_to_response'], 'credits,videos');
+    expect(url.queryParameters['api_key'], 'test-key');
+  });
+
+  test('fetching one movie returns the appended resources', () async {
+    final client = MockNetworkClient.success(Json.movieDetail);
+    final service = MovieService(networkClient: client, apiKey: 'test-key');
+
+    final detail = await service.fetchMovie(id: 42);
+
+    expect(detail.genres, hasLength(2));
+    expect(detail.cast, hasLength(2));
+    expect(detail.crew, hasLength(1));
+  });
+
+  test(
+    'a non-English locale still asks for English and untagged videos',
+    () async {
+      final client = _RecordingClient(Json.movieDetail);
+      final service = MovieService(
+        networkClient: client,
+        apiKey: 'test-key',
+        language: () => 'de-DE',
+      );
+
+      await service.fetchMovie(id: 42);
+
+      // `language` filters appended videos rather than falling back, so a movie
+      // with no German trailer would otherwise come back with none at all.
+      expect(
+        client.lastUrl!.queryParameters['include_video_language'],
+        'de,en,null',
+      );
+    },
+  );
+
+  test('an English locale does not ask for English twice', () async {
+    final client = _RecordingClient(Json.movieDetail);
+    final service = MovieService(networkClient: client, apiKey: 'test-key');
+
+    await service.fetchMovie(id: 42);
+
+    expect(
+      client.lastUrl!.queryParameters['include_video_language'],
+      'en,null',
+    );
+  });
+
+  test('fetching one movie propagates a network error', () async {
+    final client = MockNetworkClient.failure(const NetworkError.noConnection());
+    final service = MovieService(networkClient: client, apiKey: 'test-key');
+
+    await expectLater(service.fetchMovie(id: 42), throwsA(isA<NetworkError>()));
+  });
 }
 
 /// Captures the URL the service builds so the query can be asserted.

@@ -1,17 +1,24 @@
 //
 //  delayed_progress_indicator.dart
 //
+//  Shared by the grid's load-more footer and the details screen's enrichment,
+//  both of which usually finish before a spinner would be worth showing.
+//
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+/// A spinner that appears only once [delay] has passed, so a fast response
+/// never produces a flash of one.
 class DelayedProgressIndicator extends StatefulWidget {
   const DelayedProgressIndicator({
+    required this.identifier,
     this.delay = const Duration(seconds: 1),
     super.key,
   });
 
+  final String identifier;
   final Duration delay;
 
   @override
@@ -40,8 +47,8 @@ class _DelayedProgressIndicatorState extends State<DelayedProgressIndicator> {
   @override
   Widget build(BuildContext context) => _visible
       ? Semantics(
-          identifier: 'nextPageSpinner',
-          child: Center(child: CircularProgressIndicator()),
+          identifier: widget.identifier,
+          child: const Center(child: CircularProgressIndicator()),
         )
       : const SizedBox.shrink();
 }

@@ -22,7 +22,7 @@ void registerModules({GetIt? container}) {
   }
   if (!getIt.isRegistered<MovieNavigator>()) {
     getIt.registerLazySingleton<MovieNavigator>(
-      () => AppNavigator(getIt<MovieCache>()),
+      () => AppNavigator(getIt),
     );
   }
 

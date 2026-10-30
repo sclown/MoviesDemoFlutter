@@ -54,6 +54,15 @@ void main() {
     await expectAccessible(tester, harnessDetailsView(movieDetails()));
   });
 
+  testWidgets('the enriched details screen meets the guidelines', (
+    tester,
+  ) async {
+    await expectAccessible(
+      tester,
+      harnessDetailsView(movieDetails(extras: movieExtras())),
+    );
+  });
+
   testWidgets('a grid cell announces itself as a button', (tester) async {
     final handle = tester.ensureSemantics();
     await tester.pumpWidget(harnessMoviesView(moviesCubitMock(loadedState(3))));

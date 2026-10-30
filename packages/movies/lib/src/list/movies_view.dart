@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../l10n/generated/movies_localizations.dart';
 import 'error_view.dart';
 import 'loading_view.dart';
-import 'delayed_progress_indicator.dart';
+import '../delayed_progress_indicator.dart';
 import 'movie_cell.dart';
 import 'movies_list_state.dart';
 import 'movies_cubit.dart';
@@ -104,7 +104,7 @@ class _MoviesViewState extends State<MoviesView> {
             child: SizedBox(
               height: 72,
               child: state.isLoadingMore
-                  ? const DelayedProgressIndicator()
+                  ? const DelayedProgressIndicator(identifier: 'nextPageSpinner')
                   : null,
             ),
           ),

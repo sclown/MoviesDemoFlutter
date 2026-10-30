@@ -12,7 +12,9 @@ Movie makeMovie({String? posterPath = '/abc.jpg', double vote = 7.45}) {
       '"vote_average": $vote}';
   return const MovieParser()
       .parseMovieResponse(
-        Uint8List.fromList(utf8.encode('{"results": [$json], "total_pages": 1}')),
+        Uint8List.fromList(
+          utf8.encode('{"results": [$json], "total_pages": 1}'),
+        ),
       )
       .results
       .first;
